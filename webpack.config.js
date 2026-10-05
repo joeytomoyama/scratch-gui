@@ -1,6 +1,7 @@
 const defaultsDeep = require('lodash.defaultsdeep');
 const path = require('path');
 const webpack = require('webpack');
+const accountConfig = require('./scripts/account-build-config.cjs');
 
 // Plugins
 const CopyWebpackPlugin = require('copy-webpack-plugin');
@@ -33,8 +34,8 @@ const base = {
     devtool: process.env.SOURCEMAP || (process.env.NODE_ENV === 'production' ? false : 'cheap-module-source-map'),
     devServer: {
         contentBase: path.resolve(__dirname, 'build'),
-        host: '0.0.0.0',
-        disableHostCheck: true,
+        host: '127.0.0.1',
+        disableHostCheck: false,
         compress: true,
         port: process.env.PORT || 8601,
         // allows ROUTING_STYLE=wildcard to work properly
@@ -42,9 +43,7 @@ const base = {
             rewrites: [
                 {from: /^\/\d+\/?$/, to: '/index.html'},
                 {from: /^\/\d+\/fullscreen\/?$/, to: '/fullscreen.html'},
-                {from: /^\/\d+\/editor\/?$/, to: '/editor.html'},
-                {from: /^\/\d+\/embed\/?$/, to: '/embed.html'},
-                {from: /^\/addons\/?$/, to: '/addons.html'}
+                {from: /^\/\d+\/editor\/?$/, to: '/editor.html'}
             ]
         }
     },
@@ -67,10 +66,13 @@ const base = {
     },
     module: {
         rules: [{
-            test: /\.jsx?$/,
+            test: /\.(jsx?|mjs|cjs)$/,
+            type: 'javascript/auto',
             loader: 'babel-loader',
             include: [
                 path.resolve(__dirname, 'src'),
+                /node_modules[\\/]@supabase[\\/]/,
+                /node_modules[\\/]iceberg-js[\\/]/,
                 /node_modules[\\/]scratch-[^\\/]+[\\/]src/,
                 /node_modules[\\/]pify/,
                 /node_modules[\\/]@vernier[\\/]godirect/
@@ -114,8 +116,22 @@ const base = {
         }]
     },
     plugins: [
+        new webpack.DefinePlugin({
+            'process.env.BACKEND_BASE_URL': JSON.stringify(accountConfig.BACKEND_BASE_URL || ''),
+            'process.env.SUPABASE_URL': JSON.stringify(accountConfig.SUPABASE_URL || ''),
+            'process.env.SUPABASE_PUBLISHABLE_KEY': JSON.stringify(accountConfig.SUPABASE_PUBLISHABLE_KEY || '')
+        }),
         new CopyWebpackPlugin({
             patterns: [
+                {
+                    context: 'node_modules',
+                    from: '@supabase/*/LICENSE',
+                    to: 'licenses/[path][name][ext]'
+                },
+                {
+                    from: 'node_modules/iceberg-js/LICENSE',
+                    to: 'licenses/iceberg-js/LICENSE'
+                },
                 {
                     from: 'node_modules/scratch-blocks/media',
                     to: 'static/blocks-media/default'
@@ -144,10 +160,9 @@ module.exports = [
         entry: {
             'editor': './src/playground/editor.jsx',
             'player': './src/playground/player.jsx',
-            'fullscreen': './src/playground/fullscreen.jsx',
-            'embed': './src/playground/embed.jsx',
-            'addon-settings': './src/playground/addon-settings.jsx',
-            'credits': './src/playground/credits/credits.jsx'
+            'courses': './src/playground/courses.jsx',
+            'course-player': './src/playground/course-player.jsx',
+            'fullscreen': './src/playground/fullscreen.jsx'
         },
         output: {
             path: path.resolve(__dirname, 'build')
@@ -174,13 +189,26 @@ module.exports = [
             }
         },
         plugins: base.plugins.concat([
+            new HtmlWebpackPlugin({
+                chunks: ['courses'],
+                template: 'src/playground/index.ejs',
+                filename: 'courses.html',
+                title: `${APP_NAME} - Courses`,
+                ...htmlWebpackPluginCommon
+            }),
+            new HtmlWebpackPlugin({
+                chunks: ['course-player'],
+                template: 'src/playground/index.ejs',
+                filename: 'course-player.html',
+                title: `${APP_NAME} - Course demo`,
+                ...htmlWebpackPluginCommon
+            }),
             new webpack.DefinePlugin({
                 'process.env.NODE_ENV': `"${process.env.NODE_ENV}"`,
                 'process.env.DEBUG': Boolean(process.env.DEBUG),
                 'process.env.ENABLE_SERVICE_WORKER': JSON.stringify(process.env.ENABLE_SERVICE_WORKER || ''),
                 'process.env.ROOT': JSON.stringify(root),
-                'process.env.ROUTING_STYLE': JSON.stringify(process.env.ROUTING_STYLE || 'filehash'),
-                'process.env.ENABLE_WINDCHIMES': JSON.stringify(process.env.ENABLE_WINDCHIMES || '')
+                'process.env.ROUTING_STYLE': JSON.stringify(process.env.ROUTING_STYLE || 'filehash')
             }),
             new HtmlWebpackPlugin({
                 chunks: ['editor'],
@@ -204,41 +232,15 @@ module.exports = [
                 title: `${APP_NAME} - Run Scratch projects faster`,
                 ...htmlWebpackPluginCommon
             }),
-            new HtmlWebpackPlugin({
-                chunks: ['embed'],
-                template: 'src/playground/embed.ejs',
-                filename: 'embed.html',
-                title: `Embedded Project - ${APP_NAME}`,
-                ...htmlWebpackPluginCommon
-            }),
-            new HtmlWebpackPlugin({
-                chunks: ['addon-settings'],
-                template: 'src/playground/simple.ejs',
-                filename: 'addons.html',
-                title: `Addon Settings - ${APP_NAME}`,
-                ...htmlWebpackPluginCommon
-            }),
-            new HtmlWebpackPlugin({
-                chunks: ['credits'],
-                template: 'src/playground/simple.ejs',
-                filename: 'credits.html',
-                title: `${APP_NAME} Credits`,
-                ...htmlWebpackPluginCommon
-            }),
             new CopyWebpackPlugin({
                 patterns: [
                     {
                         from: 'static',
                         to: ''
-                    }
-                ]
-            }),
-            new CopyWebpackPlugin({
-                patterns: [
+                    },
                     {
-                        from: 'extensions/**',
-                        to: 'static',
-                        context: 'src/examples'
+                        from: 'LICENSE',
+                        to: 'LICENSE.txt'
                     }
                 ]
             })

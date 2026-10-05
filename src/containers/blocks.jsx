@@ -28,22 +28,20 @@ import {activateColorPicker} from '../reducers/color-picker';
 import {
     closeExtensionLibrary,
     openSoundRecorder,
-    openConnectionModal,
-    openCustomExtensionModal
+    openConnectionModal
 } from '../reducers/modals';
 import {activateCustomProcedures, deactivateCustomProcedures} from '../reducers/custom-procedures';
 import {setConnectionModalExtensionId} from '../reducers/connection-modal';
 import {updateMetrics} from '../reducers/workspace-metrics';
-import {isTimeTravel2020} from '../reducers/time-travel';
 
 import {
     activateTab,
     SOUNDS_TAB_INDEX
 } from '../reducers/editor-tab';
-import AddonHooks from '../addons/hooks.js';
 import LoadScratchBlocksHOC from '../lib/tw-load-scratch-blocks-hoc.jsx';
 import {findTopBlock} from '../lib/backpack/code-payload.js';
 import {gentlyRequestPersistentStorage} from '../lib/tw-persistent-storage.js';
+import {TutorHighlights} from '../lib/tutor/highlights';
 
 // TW: Strings we add to scratch-blocks are localized here
 const messages = defineMessages({
@@ -89,12 +87,10 @@ const DroppableBlocks = DropAreaHOC([
 class Blocks extends React.Component {
     constructor (props) {
         super(props);
+        this.blockListener = event => this.props.vm.blockListener(event);
         this.ScratchBlocks = VMScratchBlocks(props.vm, false);
 
         window.ScratchBlocks = this.ScratchBlocks;
-        AddonHooks.blockly = this.ScratchBlocks;
-        AddonHooks.blocklyCallbacks.forEach(i => i());
-        AddonHooks.blocklyCallbacks.length = [];
 
         bindAll(this, [
             'attachVM',
@@ -165,7 +161,13 @@ class Blocks extends React.Component {
             Blocks.defaultOptions
         );
         this.workspace = this.ScratchBlocks.inject(this.blocks, workspaceConfig);
-        AddonHooks.blocklyWorkspace = this.workspace;
+        this.tutorHighlights = new TutorHighlights({
+            vm: this.props.vm,
+            workspace: this.workspace,
+            root: this.blocks,
+            blockTypes: this.ScratchBlocks.Blocks,
+            getToolboxXML: () => this.props.toolboxXML
+        });
 
         // Register buttons under new callback keys for creating variables,
         // lists, and procedures from extensions.
@@ -287,13 +289,13 @@ class Blocks extends React.Component {
     componentWillUnmount () {
         this.detachVM();
         this.unmounted = true;
+        this.tutorHighlights.dispose();
         this.workspace.dispose();
         clearTimeout(this.toolboxUpdateTimeout);
 
         // Clear the flyout blocks so that they can be recreated on mount.
         this.props.vm.clearFlyoutBlocks();
 
-        AddonHooks.blocklyWorkspace = null;
     }
     requestToolboxUpdate () {
         clearTimeout(this.toolboxUpdateTimeout);
@@ -351,7 +353,7 @@ class Blocks extends React.Component {
     }
 
     attachVM () {
-        this.workspace.addChangeListener(this.props.vm.blockListener);
+        this.workspace.addChangeListener(this.blockListener);
         this.flyoutWorkspace = this.workspace
             .getFlyout()
             .getWorkspace();
@@ -474,7 +476,7 @@ class Blocks extends React.Component {
         }
 
         // Remove and reattach the workspace listener (but allow flyout events)
-        this.workspace.removeChangeListener(this.props.vm.blockListener);
+        this.workspace.removeChangeListener(this.blockListener);
         const dom = this.ScratchBlocks.Xml.textToDom(data.xml);
         try {
             this.ScratchBlocks.Xml.clearWorkspaceAndLoadFromXml(dom, this.workspace);
@@ -493,7 +495,7 @@ class Blocks extends React.Component {
             }
             log.error(error);
         }
-        this.workspace.addChangeListener(this.props.vm.blockListener);
+        this.workspace.addChangeListener(this.blockListener);
 
         if (this.props.vm.editingTarget && this.props.workspaceMetrics.targets[this.props.vm.editingTarget.id]) {
             const {scrollX, scrollY, scale} = this.props.workspaceMetrics.targets[this.props.vm.editingTarget.id];
@@ -678,8 +680,6 @@ class Blocks extends React.Component {
             onActivateColorPicker,
             onOpenConnectionModal,
             onOpenSoundRecorder,
-            onOpenCustomExtensionModal,
-            reduxOnOpenCustomExtensionModal,
             updateToolboxState,
             onActivateCustomProcedures,
             onRequestCloseExtensionLibrary,
@@ -718,7 +718,6 @@ class Blocks extends React.Component {
                         onCategorySelected={this.handleCategorySelected}
                         onEnableProcedureReturns={this.handleEnableProcedureReturns}
                         onRequestClose={onRequestCloseExtensionLibrary}
-                        onOpenCustomExtensionModal={onOpenCustomExtensionModal || reduxOnOpenCustomExtensionModal}
                     />
                 ) : null}
                 {customProceduresVisible ? (
@@ -752,8 +751,6 @@ Blocks.propTypes = {
     onActivateCustomProcedures: PropTypes.func,
     onOpenConnectionModal: PropTypes.func,
     onOpenSoundRecorder: PropTypes.func,
-    onOpenCustomExtensionModal: PropTypes.func,
-    reduxOnOpenCustomExtensionModal: PropTypes.func,
     onRequestCloseCustomProcedures: PropTypes.func,
     onRequestCloseExtensionLibrary: PropTypes.func,
     options: PropTypes.shape({
@@ -813,7 +810,7 @@ const mapStateToProps = state => ({
     toolboxXML: state.scratchGui.toolbox.toolboxXML,
     customProceduresVisible: state.scratchGui.customProcedures.active,
     workspaceMetrics: state.scratchGui.workspaceMetrics,
-    useCatBlocks: isTimeTravel2020(state)
+    useCatBlocks: false
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -827,7 +824,6 @@ const mapDispatchToProps = dispatch => ({
         dispatch(activateTab(SOUNDS_TAB_INDEX));
         dispatch(openSoundRecorder());
     },
-    reduxOnOpenCustomExtensionModal: () => dispatch(openCustomExtensionModal()),
     onRequestCloseExtensionLibrary: () => {
         dispatch(closeExtensionLibrary());
     },

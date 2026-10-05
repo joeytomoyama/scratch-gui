@@ -20,5 +20,6 @@ import React from 'react';
 
 import Interface from './render-interface.jsx';
 import render from './app-target';
+import {courseIdFromURL} from '../lib/course-api';
 
-render(<Interface />);
+render(<Interface courseId={courseIdFromURL()} />);

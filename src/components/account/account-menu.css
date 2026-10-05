@@ -1,0 +1,19 @@
+.root { position: relative; margin-left: .75rem; color: inherit; }
+.trigger { border: 1px solid #ffffff60; border-radius: 8px; background: #ffffff18; color: inherit; padding: 8px 12px; font: inherit; cursor: pointer; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.panel { position: fixed; top: 52px; right: 12px; z-index: 10000; width: 350px; max-width: calc(100vw - 24px); max-height: calc(100vh - 70px); overflow-y: auto; box-sizing: border-box; padding: 20px; background: #fff; color: #17212e; border: 1px solid #d7dce3; border-radius: 14px; box-shadow: 0 12px 48px #0003; font-size: 14px; font-weight: normal; text-align: left; }
+.header { display: flex; justify-content: space-between; align-items: center; font-size: 19px; gap: 12px; margin-bottom: 14px; }
+.header button { border: 0; background: transparent; font-size: 25px; cursor: pointer; }
+.identity { overflow-wrap: anywhere; color: #536175; }
+.navigation { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+.navigation button, .signout button { background: #f1f4f8; border: 0; padding: 8px 10px; border-radius: 6px; cursor: pointer; color: #17212e; }
+.navigation button[aria-pressed="true"] { background: #dce9ff; color: #17439b; }
+.fields { border: 0; padding: 0; margin: 0; min-width: 0; }
+.field { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; font-weight: 600; }
+.field input { box-sizing: border-box; width: 100%; padding: 10px 12px; border: 1px solid #aab5c4; border-radius: 7px; background: #fff; color: #17212e; font-size: 15px; }
+.panel button:focus-visible, .field input:focus-visible { outline: 3px solid #2a66d9; outline-offset: 2px; }
+.primary { width: 100%; padding: 12px; margin-top: 14px; border: 0; border-radius: 8px; background: #245ccb; color: white; font-weight: 600; cursor: pointer; }
+.panel button:disabled { opacity: .6; cursor: wait; }
+.signout { display: flex; gap: 8px; margin-top: 18px; }
+.error { padding: 10px; border-radius: 6px; color: #9d182b; background: #fff0f2; }
+.message { padding: 10px; border-radius: 6px; color: #155331; background: #eaf7ef; }
+.note { color: #536175; font-size: 12px; line-height: 1.5; margin-bottom: 0; }

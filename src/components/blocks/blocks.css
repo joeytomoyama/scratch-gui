@@ -6,6 +6,38 @@
     height: 100%;
 }
 
+.blocks :global(.tutorCategoryHint) {
+    box-shadow: inset 0 0 0 3px #d97706;
+    background-color: #fef3c7;
+    border-radius: 8px;
+}
+
+@keyframes tutor-hint-fade {
+    from { filter: drop-shadow(0 0 0 transparent); }
+    to { filter: drop-shadow(0 0 5px #f59e0b) drop-shadow(0 0 2px #fff); }
+}
+
+.blocks :global(.tutorExactHint) {
+    animation: tutor-hint-fade 1s ease-in forwards;
+}
+
+@keyframes tutor-remove-fade {
+    from { filter: drop-shadow(0 0 0 transparent); stroke: transparent; }
+    to { filter: drop-shadow(0 0 5px #dc2626); stroke: #dc2626; }
+}
+
+.blocks :global(.tutorRemoveHint) {
+    stroke-width: 3px;
+    animation: tutor-remove-fade 1s ease-in forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .blocks :global(.tutorExactHint),
+    .blocks :global(.tutorRemoveHint) {
+        animation-duration: 0.01s;
+    }
+}
+
 .drag-over:after {
     content: '';
     position: absolute;

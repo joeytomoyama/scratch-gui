@@ -1,0 +1,850 @@
+{
+  "control_forever": {
+    "category": "control",
+    "inputOnly": false
+  },
+  "control_repeat": {
+    "category": "control",
+    "inputOnly": false
+  },
+  "control_if": {
+    "category": "control",
+    "inputOnly": false
+  },
+  "control_if_else": {
+    "category": "control",
+    "inputOnly": false
+  },
+  "control_stop": {
+    "category": "control",
+    "inputOnly": false
+  },
+  "control_wait": {
+    "category": "control",
+    "inputOnly": false
+  },
+  "control_wait_until": {
+    "category": "control",
+    "inputOnly": false
+  },
+  "control_repeat_until": {
+    "category": "control",
+    "inputOnly": false
+  },
+  "control_while": {
+    "category": "control",
+    "inputOnly": false
+  },
+  "control_start_as_clone": {
+    "category": "control",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "control_create_clone_of_menu": {
+    "category": "control",
+    "inputOnly": true
+  },
+  "control_create_clone_of": {
+    "category": "control",
+    "inputOnly": false
+  },
+  "control_delete_this_clone": {
+    "category": "control",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "data_variable": {
+    "category": "data",
+    "inputOnly": false
+  },
+  "data_setvariableto": {
+    "category": "data",
+    "inputOnly": false
+  },
+  "data_changevariableby": {
+    "category": "data",
+    "inputOnly": false
+  },
+  "data_showvariable": {
+    "category": "data",
+    "inputOnly": false
+  },
+  "data_hidevariable": {
+    "category": "data",
+    "inputOnly": false
+  },
+  "data_listcontents": {
+    "category": "dataLists",
+    "inputOnly": false
+  },
+  "data_addtolist": {
+    "category": "dataLists",
+    "inputOnly": false
+  },
+  "data_deleteoflist": {
+    "category": "dataLists",
+    "inputOnly": false
+  },
+  "data_deletealloflist": {
+    "category": "dataLists",
+    "inputOnly": false
+  },
+  "data_insertatlist": {
+    "category": "dataLists",
+    "inputOnly": false
+  },
+  "data_replaceitemoflist": {
+    "category": "dataLists",
+    "inputOnly": false
+  },
+  "data_itemoflist": {
+    "category": "dataLists",
+    "inputOnly": false
+  },
+  "data_itemnumoflist": {
+    "category": "dataLists",
+    "inputOnly": false
+  },
+  "data_lengthoflist": {
+    "category": "dataLists",
+    "inputOnly": false
+  },
+  "data_listcontainsitem": {
+    "category": "dataLists",
+    "inputOnly": false
+  },
+  "data_showlist": {
+    "category": "dataLists",
+    "inputOnly": false
+  },
+  "data_hidelist": {
+    "category": "dataLists",
+    "inputOnly": false
+  },
+  "event_whenflagclicked": {
+    "category": "event",
+    "inputOnly": false
+  },
+  "event_whenthisspriteclicked": {
+    "category": "event",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "event_whenstageclicked": {
+    "category": "event",
+    "inputOnly": false,
+    "targets": [
+      "STAGE"
+    ]
+  },
+  "event_whenbroadcastreceived": {
+    "category": "event",
+    "inputOnly": false
+  },
+  "event_whenbackdropswitchesto": {
+    "category": "event",
+    "inputOnly": false
+  },
+  "event_whengreaterthan": {
+    "category": "event",
+    "inputOnly": false
+  },
+  "event_broadcast_menu": {
+    "category": "event",
+    "inputOnly": true
+  },
+  "event_broadcast": {
+    "category": "event",
+    "inputOnly": false
+  },
+  "event_broadcastandwait": {
+    "category": "event",
+    "inputOnly": false
+  },
+  "event_whenkeypressed": {
+    "category": "event",
+    "inputOnly": false
+  },
+  "looks_sayforsecs": {
+    "category": "looks",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "looks_say": {
+    "category": "looks",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "looks_thinkforsecs": {
+    "category": "looks",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "looks_think": {
+    "category": "looks",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "looks_show": {
+    "category": "looks",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "looks_hide": {
+    "category": "looks",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "looks_changeeffectby": {
+    "category": "looks",
+    "inputOnly": false
+  },
+  "looks_seteffectto": {
+    "category": "looks",
+    "inputOnly": false
+  },
+  "looks_cleargraphiceffects": {
+    "category": "looks",
+    "inputOnly": false
+  },
+  "looks_changesizeby": {
+    "category": "looks",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "looks_setsizeto": {
+    "category": "looks",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "looks_size": {
+    "category": "looks",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "looks_costume": {
+    "category": "looks",
+    "inputOnly": true
+  },
+  "looks_switchcostumeto": {
+    "category": "looks",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "looks_nextcostume": {
+    "category": "looks",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "looks_switchbackdropto": {
+    "category": "looks",
+    "inputOnly": false
+  },
+  "looks_backdrops": {
+    "category": "looks",
+    "inputOnly": true
+  },
+  "looks_gotofrontback": {
+    "category": "looks",
+    "inputOnly": false
+  },
+  "looks_goforwardbackwardlayers": {
+    "category": "looks",
+    "inputOnly": false
+  },
+  "looks_backdropnumbername": {
+    "category": "looks",
+    "inputOnly": false
+  },
+  "looks_costumenumbername": {
+    "category": "looks",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "looks_switchbackdroptoandwait": {
+    "category": "looks",
+    "inputOnly": false,
+    "targets": [
+      "STAGE"
+    ]
+  },
+  "looks_nextbackdrop": {
+    "category": "looks",
+    "inputOnly": false
+  },
+  "motion_movesteps": {
+    "category": "motion",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "motion_turnright": {
+    "category": "motion",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "motion_turnleft": {
+    "category": "motion",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "motion_pointindirection": {
+    "category": "motion",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "motion_pointtowards_menu": {
+    "category": "motion",
+    "inputOnly": true,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "motion_pointtowards": {
+    "category": "motion",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "motion_goto_menu": {
+    "category": "motion",
+    "inputOnly": true,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "motion_gotoxy": {
+    "category": "motion",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "motion_goto": {
+    "category": "motion",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "motion_glidesecstoxy": {
+    "category": "motion",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "motion_glideto_menu": {
+    "category": "motion",
+    "inputOnly": true,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "motion_glideto": {
+    "category": "motion",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "motion_changexby": {
+    "category": "motion",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "motion_setx": {
+    "category": "motion",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "motion_changeyby": {
+    "category": "motion",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "motion_sety": {
+    "category": "motion",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "motion_ifonedgebounce": {
+    "category": "motion",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "motion_setrotationstyle": {
+    "category": "motion",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "motion_xposition": {
+    "category": "motion",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "motion_yposition": {
+    "category": "motion",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "motion_direction": {
+    "category": "motion",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "operator_add": {
+    "category": "operators",
+    "inputOnly": false
+  },
+  "operator_subtract": {
+    "category": "operators",
+    "inputOnly": false
+  },
+  "operator_multiply": {
+    "category": "operators",
+    "inputOnly": false
+  },
+  "operator_divide": {
+    "category": "operators",
+    "inputOnly": false
+  },
+  "operator_random": {
+    "category": "operators",
+    "inputOnly": false
+  },
+  "operator_lt": {
+    "category": "operators",
+    "inputOnly": false
+  },
+  "operator_equals": {
+    "category": "operators",
+    "inputOnly": false
+  },
+  "operator_gt": {
+    "category": "operators",
+    "inputOnly": false
+  },
+  "operator_and": {
+    "category": "operators",
+    "inputOnly": false
+  },
+  "operator_or": {
+    "category": "operators",
+    "inputOnly": false
+  },
+  "operator_not": {
+    "category": "operators",
+    "inputOnly": false
+  },
+  "operator_join": {
+    "category": "operators",
+    "inputOnly": false
+  },
+  "operator_letter_of": {
+    "category": "operators",
+    "inputOnly": false
+  },
+  "operator_length": {
+    "category": "operators",
+    "inputOnly": false
+  },
+  "operator_contains": {
+    "category": "operators",
+    "inputOnly": false
+  },
+  "operator_mod": {
+    "category": "operators",
+    "inputOnly": false
+  },
+  "operator_round": {
+    "category": "operators",
+    "inputOnly": false
+  },
+  "operator_mathop": {
+    "category": "operators",
+    "inputOnly": false
+  },
+  "procedures_definition": {
+    "category": "myBlocks",
+    "inputOnly": false
+  },
+  "procedures_call": {
+    "category": "myBlocks",
+    "inputOnly": false
+  },
+  "argument_reporter_boolean": {
+    "category": "myBlocks",
+    "inputOnly": false
+  },
+  "argument_reporter_string_number": {
+    "category": "myBlocks",
+    "inputOnly": false
+  },
+  "procedures_return": {
+    "category": "myBlocks",
+    "inputOnly": false
+  },
+  "sensing_touchingobject": {
+    "category": "sensing",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "sensing_touchingobjectmenu": {
+    "category": "sensing",
+    "inputOnly": true
+  },
+  "sensing_touchingcolor": {
+    "category": "sensing",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "sensing_coloristouchingcolor": {
+    "category": "sensing",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "sensing_distanceto": {
+    "category": "sensing",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "sensing_distancetomenu": {
+    "category": "sensing",
+    "inputOnly": true
+  },
+  "sensing_askandwait": {
+    "category": "sensing",
+    "inputOnly": false
+  },
+  "sensing_answer": {
+    "category": "sensing",
+    "inputOnly": false
+  },
+  "sensing_keypressed": {
+    "category": "sensing",
+    "inputOnly": false
+  },
+  "sensing_keyoptions": {
+    "category": "sensing",
+    "inputOnly": true
+  },
+  "sensing_mousedown": {
+    "category": "sensing",
+    "inputOnly": false
+  },
+  "sensing_mousex": {
+    "category": "sensing",
+    "inputOnly": false
+  },
+  "sensing_mousey": {
+    "category": "sensing",
+    "inputOnly": false
+  },
+  "sensing_setdragmode": {
+    "category": "sensing",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "sensing_loudness": {
+    "category": "sensing",
+    "inputOnly": false
+  },
+  "sensing_timer": {
+    "category": "sensing",
+    "inputOnly": false
+  },
+  "sensing_resettimer": {
+    "category": "sensing",
+    "inputOnly": false
+  },
+  "sensing_of_object_menu": {
+    "category": "sensing",
+    "inputOnly": true
+  },
+  "sensing_of": {
+    "category": "sensing",
+    "inputOnly": false
+  },
+  "sensing_current": {
+    "category": "sensing",
+    "inputOnly": false
+  },
+  "sensing_dayssince2000": {
+    "category": "sensing",
+    "inputOnly": false
+  },
+  "sensing_username": {
+    "category": "sensing",
+    "inputOnly": false
+  },
+  "sensing_online": {
+    "category": "sensing",
+    "inputOnly": false
+  },
+  "sound_sounds_menu": {
+    "category": "sound",
+    "inputOnly": true
+  },
+  "sound_play": {
+    "category": "sound",
+    "inputOnly": false
+  },
+  "sound_playuntildone": {
+    "category": "sound",
+    "inputOnly": false
+  },
+  "sound_stopallsounds": {
+    "category": "sound",
+    "inputOnly": false
+  },
+  "sound_seteffectto": {
+    "category": "sound",
+    "inputOnly": false
+  },
+  "sound_changeeffectby": {
+    "category": "sound",
+    "inputOnly": false
+  },
+  "sound_cleareffects": {
+    "category": "sound",
+    "inputOnly": false
+  },
+  "sound_changevolumeby": {
+    "category": "sound",
+    "inputOnly": false
+  },
+  "sound_setvolumeto": {
+    "category": "sound",
+    "inputOnly": false
+  },
+  "sound_volume": {
+    "category": "sound",
+    "inputOnly": false
+  },
+  "music_playDrumForBeats": {
+    "category": "music",
+    "extension": "music",
+    "inputOnly": false
+  },
+  "music_restForBeats": {
+    "category": "music",
+    "extension": "music",
+    "inputOnly": false
+  },
+  "music_playNoteForBeats": {
+    "category": "music",
+    "extension": "music",
+    "inputOnly": false
+  },
+  "music_setInstrument": {
+    "category": "music",
+    "extension": "music",
+    "inputOnly": false
+  },
+  "music_setTempo": {
+    "category": "music",
+    "extension": "music",
+    "inputOnly": false
+  },
+  "music_changeTempo": {
+    "category": "music",
+    "extension": "music",
+    "inputOnly": false
+  },
+  "music_getTempo": {
+    "category": "music",
+    "extension": "music",
+    "inputOnly": false
+  },
+  "pen_clear": {
+    "category": "pen",
+    "extension": "pen",
+    "inputOnly": false
+  },
+  "pen_stamp": {
+    "category": "pen",
+    "extension": "pen",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "pen_penDown": {
+    "category": "pen",
+    "extension": "pen",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "pen_penUp": {
+    "category": "pen",
+    "extension": "pen",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "pen_setPenColorToColor": {
+    "category": "pen",
+    "extension": "pen",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "pen_changePenColorParamBy": {
+    "category": "pen",
+    "extension": "pen",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "pen_setPenColorParamTo": {
+    "category": "pen",
+    "extension": "pen",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "pen_changePenSizeBy": {
+    "category": "pen",
+    "extension": "pen",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "pen_setPenSizeTo": {
+    "category": "pen",
+    "extension": "pen",
+    "inputOnly": false,
+    "targets": [
+      "SPRITE"
+    ]
+  },
+  "text2speech_speakAndWait": {
+    "category": "text2speech",
+    "extension": "text2speech",
+    "inputOnly": false
+  },
+  "text2speech_setVoice": {
+    "category": "text2speech",
+    "extension": "text2speech",
+    "inputOnly": false
+  },
+  "text2speech_setLanguage": {
+    "category": "text2speech",
+    "extension": "text2speech",
+    "inputOnly": false
+  },
+  "translate_getTranslate": {
+    "category": "translate",
+    "extension": "translate",
+    "inputOnly": false
+  },
+  "translate_getViewerLanguage": {
+    "category": "translate",
+    "extension": "translate",
+    "inputOnly": false
+  },
+  "videoSensing_whenMotionGreaterThan": {
+    "category": "videoSensing",
+    "extension": "videoSensing",
+    "inputOnly": false
+  },
+  "videoSensing_videoOn": {
+    "category": "videoSensing",
+    "extension": "videoSensing",
+    "inputOnly": false
+  },
+  "videoSensing_videoToggle": {
+    "category": "videoSensing",
+    "extension": "videoSensing",
+    "inputOnly": false
+  },
+  "videoSensing_setVideoTransparency": {
+    "category": "videoSensing",
+    "extension": "videoSensing",
+    "inputOnly": false
+  },
+  "tw_getLastKeyPressed": {
+    "category": "tw",
+    "extension": "tw",
+    "inputOnly": false
+  },
+  "tw_getButtonIsDown": {
+    "category": "tw",
+    "extension": "tw",
+    "inputOnly": false
+  }
+}

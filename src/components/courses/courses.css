@@ -1,0 +1,19 @@
+@import "../../css/colors.css";
+
+.page { min-height: 100vh; background: $ui-primary; color: $text-primary; font-family: "Helvetica Neue", sans-serif; }
+.header { display: flex; align-items: center; gap: 24px; padding: 12px 24px; background: $motion-primary; color: white; }
+.header a { color: white; text-decoration: none; font-weight: bold; }
+.account { margin-left: auto; }
+.content { max-width: 1100px; margin: auto; padding: 28px; }
+.filters, .actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin: 20px 0; }
+.filters label { display: flex; align-items: center; gap: 8px; }
+.page input, .page select, .page button { padding: 10px; border: 1px solid $ui-black-transparent; border-radius: 6px; font: inherit; }
+.page button { cursor: pointer; background: $ui-white; color: $text-primary; }
+.page button:disabled { opacity: .6; cursor: wait; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+.card { background: $ui-white; border: 1px solid $ui-black-transparent; border-radius: 8px; padding: 20px; }
+.card a { color: inherit; text-decoration: none; }
+.thumbnail, .placeholder { width: 100%; height: 170px; object-fit: cover; border-radius: 6px; }
+.placeholder { display: flex; align-items: center; justify-content: center; background: $ui-secondary; color: $motion-primary; font-size: 48px; }
+.button, .card .button { display: inline-block; background: $motion-primary; color: white; border-radius: 6px; padding: 10px 16px; text-decoration: none; }
+.preview { width: 500px; max-width: 100%; height: 420px; border: 1px solid $ui-black-transparent; border-radius: 8px; background: $ui-white; }

@@ -1,0 +1,12 @@
+.root { margin-left: .5rem; }
+.root button { cursor: pointer; padding: .45rem .65rem; border-radius: 6px; border: 1px solid #aab5c4; }
+.panel { position: fixed; right: 12px; top: 52px; z-index: 9999; width: 370px; max-width: calc(100vw - 24px); max-height: calc(100vh - 70px); overflow: auto; background: white; color: #17212e; padding: 18px; border: 1px solid #aab5c4; border-radius: 12px; box-sizing: border-box; box-shadow: 0 8px 30px #0003; font-size: 14px; font-weight: normal; }
+.panel p { line-height: 1.4; }
+.panel label { display: block; margin: 12px 0; }
+.panel textarea { display: block; width: 100%; min-height: 90px; box-sizing: border-box; }
+.panel button { margin: 4px; }
+.panel button:disabled { cursor: default; opacity: .5; }
+.panel audio { width: 100%; }
+.reply { position: fixed; right: 12px; bottom: 12px; z-index: 9998; width: 370px; max-width: calc(100vw - 24px); max-height: 40vh; overflow: auto; padding: 14px; box-sizing: border-box; border: 1px solid #aaa; background: #fff; color: #000; font: 14px/1.5 system-ui, sans-serif; white-space: pre-wrap; overflow-wrap: anywhere; user-select: text; }
+.reply button { display: block; margin-bottom: 8px; color: #000; background: #fff; }
+.json { white-space: normal; text-align: left; font: 12px/1.5 monospace; }

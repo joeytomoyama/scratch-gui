@@ -24,7 +24,6 @@ import {
 } from '../reducers/tw';
 import {setCustomStageSize} from '../reducers/custom-stage-size';
 import {openUnknownPlatformModal} from '../reducers/modals';
-import implementGuiAPI from './tw-extension-gui-api';
 import {BLOCKS_TAB_INDEX} from '../reducers/editor-tab';
 
 let compileErrorCounter = 0;
@@ -75,7 +74,6 @@ const vmListenerHOC = function (WrappedComponent) {
             this.props.vm.on('COMPILE_ERROR', this.handleCompileError);
             this.props.vm.on('RUNTIME_STARTED', this.props.onClearCompileErrors);
             this.props.vm.on('STAGE_SIZE_CHANGED', this.props.onStageSizeChanged);
-            this.props.vm.on('CREATE_UNSANDBOXED_EXTENSION_API', implementGuiAPI);
             this.props.vm.runtime.on('PLATFORM_MISMATCH', this.props.onPlatformMismatch);
         }
         componentDidMount () {
@@ -124,7 +122,6 @@ const vmListenerHOC = function (WrappedComponent) {
             this.props.vm.off('COMPILE_ERROR', this.handleCompileError);
             this.props.vm.off('RUNTIME_STARTED', this.props.onClearCompileErrors);
             this.props.vm.off('STAGE_SIZE_CHANGED', this.props.onStageSizeChanged);
-            this.props.vm.off('CREATE_UNSANDBOXED_EXTENSION_API', implementGuiAPI);
             this.props.vm.runtime.off('PLATFORM_MISMATCH', this.props.onPlatformMismatch);
         }
         handleCloudDataUpdate (hasCloudVariables) {

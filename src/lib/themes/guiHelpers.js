@@ -1,5 +1,4 @@
 import {Theme} from '.';
-import AddonHooks from '../../addons/hooks';
 import './global-styles.css';
 
 const BLOCK_COLOR_NAMES = [
@@ -71,7 +70,6 @@ const applyGuiColors = theme => {
     window.Recolor = {
         primary: guiColors['looks-secondary']
     };
-    AddonHooks.recolorCallbacks.forEach(i => i());
 };
 
 export {

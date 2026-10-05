@@ -1,7 +1,6 @@
 import {applyMiddleware, compose, combineReducers} from 'redux';
 import alertsReducer, {alertsInitialState} from './alerts';
 import assetDragReducer, {assetDragInitialState} from './asset-drag';
-import cardsReducer, {cardsInitialState} from './cards';
 import colorPickerReducer, {colorPickerInitialState} from './color-picker';
 import connectionModalReducer, {connectionModalInitialState} from './connection-modal';
 import customProceduresReducer, {customProceduresInitialState} from './custom-procedures';
@@ -15,6 +14,7 @@ import modeReducer, {modeInitialState} from './mode';
 import monitorReducer, {monitorsInitialState} from './monitors';
 import monitorLayoutReducer, {monitorLayoutInitialState} from './monitor-layout';
 import projectChangedReducer, {projectChangedInitialState} from './project-changed';
+import persistenceReducer, {initialState as persistenceInitialState} from './persistence';
 import projectStateReducer, {projectStateInitialState} from './project-state';
 import projectTitleReducer, {projectTitleInitialState} from './project-title';
 import fontsLoadedReducer, {fontsLoadedInitialState} from './fonts-loaded';
@@ -22,8 +22,6 @@ import restoreDeletionReducer, {restoreDeletionInitialState} from './restore-del
 import stageSizeReducer, {stageSizeInitialState} from './stage-size';
 import targetReducer, {targetsInitialState} from './targets';
 import themeReducer, {themeInitialState} from './theme';
-import timeoutReducer, {timeoutInitialState} from './timeout';
-import timeTravelReducer, {timeTravelInitialState} from './time-travel';
 import toolboxReducer, {toolboxInitialState} from './toolbox';
 import twReducer, {twInitialState} from './tw';
 import customStageSizeReducer, {customStageSizeInitialState} from './custom-stage-size';
@@ -32,7 +30,6 @@ import vmStatusReducer, {vmStatusInitialState} from './vm-status';
 import workspaceMetricsReducer, {workspaceMetricsInitialState} from './workspace-metrics';
 import throttle from 'redux-throttle';
 
-import decks from '../lib/libraries/decks/index.jsx';
 
 const guiMiddleware = compose(applyMiddleware(throttle(300, {leading: true, trailing: true})));
 
@@ -40,7 +37,6 @@ const guiInitialState = {
     alerts: alertsInitialState,
     assetDrag: assetDragInitialState,
     blockDrag: blockDragInitialState,
-    cards: cardsInitialState,
     colorPicker: colorPickerInitialState,
     connectionModal: connectionModalInitialState,
     customStageSize: customStageSizeInitialState,
@@ -55,14 +51,13 @@ const guiInitialState = {
     monitors: monitorsInitialState,
     monitorLayout: monitorLayoutInitialState,
     projectChanged: projectChangedInitialState,
+    persistence: persistenceInitialState,
     projectState: projectStateInitialState,
     projectTitle: projectTitleInitialState,
     fontsLoaded: fontsLoadedInitialState,
     restoreDeletion: restoreDeletionInitialState,
     targets: targetsInitialState,
     theme: themeInitialState,
-    timeout: timeoutInitialState,
-    timeTravel: timeTravelInitialState,
     toolbox: toolboxInitialState,
     tw: twInitialState,
     vm: vmInitialState,
@@ -111,42 +106,11 @@ const initEmbedded = function (currentState) {
     );
 };
 
-const initTutorialCard = function (currentState, deckId) {
-    return Object.assign(
-        {},
-        currentState,
-        {
-            cards: {
-                visible: true,
-                content: decks,
-                activeDeckId: deckId,
-                expanded: true,
-                step: 0,
-                x: 0,
-                y: 0,
-                dragging: false
-            }
-        }
-    );
-};
-
-const initTelemetryModal = function (currentState) {
-    return Object.assign(
-        {},
-        currentState,
-        {
-            modals: {
-                telemetryModal: true // this key must match `MODAL_TELEMETRY` in modals.js
-            }
-        }
-    );
-};
 
 const guiReducer = combineReducers({
     alerts: alertsReducer,
     assetDrag: assetDragReducer,
     blockDrag: blockDragReducer,
-    cards: cardsReducer,
     colorPicker: colorPickerReducer,
     connectionModal: connectionModalReducer,
     customStageSize: customStageSizeReducer,
@@ -161,14 +125,13 @@ const guiReducer = combineReducers({
     monitors: monitorReducer,
     monitorLayout: monitorLayoutReducer,
     projectChanged: projectChangedReducer,
+    persistence: persistenceReducer,
     projectState: projectStateReducer,
     projectTitle: projectTitleReducer,
     fontsLoaded: fontsLoadedReducer,
     restoreDeletion: restoreDeletionReducer,
     targets: targetReducer,
     theme: themeReducer,
-    timeout: timeoutReducer,
-    timeTravel: timeTravelReducer,
     toolbox: toolboxReducer,
     tw: twReducer,
     vm: vmReducer,
@@ -182,7 +145,5 @@ export {
     guiMiddleware,
     initEmbedded,
     initFullScreen,
-    initPlayer,
-    initTelemetryModal,
-    initTutorialCard
+    initPlayer
 };

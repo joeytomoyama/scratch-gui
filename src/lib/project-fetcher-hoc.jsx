@@ -13,6 +13,7 @@ import {
     getIsShowingProject,
     onFetchedProjectData,
     projectError,
+    privateProjectFetched,
     setProjectId
 } from '../reducers/project-state';
 import {
@@ -22,37 +23,14 @@ import {
 
 import log from './log';
 import storage from './storage';
-import {ProjectUnsharedError, ProjectFetchError, ProjectUnavailableLegalReasons} from './tw-load-project-error';
+import {ProjectFetchError} from './tw-load-project-error';
 
 import VM from 'scratch-vm';
-import {fetchProjectMeta} from './tw-project-meta-fetcher-hoc.jsx';
+import {getAccountService} from './account/service';
+import {accountProjectAPI, isProjectId} from './private-project-api';
+import {createCourseAPI} from './course-api';
+/* eslint-disable max-len, react/sort-comp */
 
-// TW: Temporary hack for project tokens
-const fetchProjectToken = async projectId => {
-    if (projectId === '0') {
-        return null;
-    }
-    // Parse ?token=abcdef
-    const searchParams = new URLSearchParams(location.search);
-    if (searchParams.has('token')) {
-        return searchParams.get('token');
-    }
-    // Parse #1?token=abcdef
-    const hashParams = new URLSearchParams(location.hash.split('?')[1]);
-    if (hashParams.has('token')) {
-        return hashParams.get('token');
-    }
-    try {
-        const metadata = await fetchProjectMeta(projectId);
-        return metadata.project_token;
-    } catch (e) {
-        log.error(e);
-        if (e instanceof ProjectUnavailableLegalReasons) {
-            throw e;
-        }
-        throw new ProjectUnsharedError('Cannot access project token. Project is probably unshared. See https://docs.turbowarp.org/unshared-projects');
-    }
-};
 
 /* Higher Order Component to provide behavior for loading projects by id. If
  * there's no id, the default project is loaded.
@@ -66,8 +44,6 @@ const ProjectFetcherHOC = function (WrappedComponent) {
             bindAll(this, [
                 'fetchProject'
             ]);
-            storage.setProjectHost(props.projectHost);
-            storage.setProjectToken(props.projectToken);
             storage.setAssetHost(props.assetHost);
             storage.setTranslatorFunction(props.intl.formatMessage);
             // props.projectId might be unset, in which case we use our default;
@@ -83,19 +59,13 @@ const ProjectFetcherHOC = function (WrappedComponent) {
             }
         }
         componentDidUpdate (prevProps) {
-            if (prevProps.projectHost !== this.props.projectHost) {
-                storage.setProjectHost(this.props.projectHost);
-            }
-            if (prevProps.projectToken !== this.props.projectToken) {
-                storage.setProjectToken(this.props.projectToken);
-            }
             if (prevProps.assetHost !== this.props.assetHost) {
                 storage.setAssetHost(this.props.assetHost);
             }
-            if (this.props.isFetchingWithId && !prevProps.isFetchingWithId) {
+            if (this.props.isFetchingWithId && (!prevProps.isFetchingWithId || this.props.reduxProjectId !== prevProps.reduxProjectId)) {
                 this.fetchProject(this.props.reduxProjectId, this.props.loadingState);
             }
-            if (this.props.isShowingProject && !prevProps.isShowingProject) {
+            if (this.props.isShowingProject && prevProps.isLoadingProject) {
                 this.props.onProjectUnchanged();
             }
             if (this.props.isShowingProject && (prevProps.isLoadingProject || prevProps.isCreatingNew)) {
@@ -103,53 +73,73 @@ const ProjectFetcherHOC = function (WrappedComponent) {
             }
         }
         fetchProject (projectId, loadingState) {
+            this.privateAdapter?.dispose(); this.privateAdapter = null;
+            this.stopWaiting?.(); this.stopWaiting = null;
+            const courseLoad = projectId === '0' && this.props.courseId && !this.courseLoaded;
+            if (isProjectId(projectId) || courseLoad) {
+                const account = getAccountService();
+                if (!account) {
+                    this.props.onError(new Error('You must be signed in to view this project.')); return;
+                }
+                // Wait only for session restoration, not indefinitely for sign-in.
+                let failed = false;
+                const load = async ({user, loading}) => {
+                    if (failed || this.props.reduxProjectId !== projectId) return;
+                    if (this.loadingUser !== user?.id) {
+                        this.privateAdapter?.dispose(); this.privateAdapter = null;
+                        this.fetchingPrivate = null; this.loadingUser = user?.id;
+                    }
+                    if (loading) return;
+                    if (!user) {
+                        failed = true;
+                        this.stopWaiting?.(); this.stopWaiting = null;
+                        this.props.onError(new Error('You must be signed in to view this project.'));
+                        return;
+                    }
+                    if (this.fetchingPrivate === projectId) return;
+                    this.fetchingPrivate = projectId;
+                    const adapter = courseLoad ? createCourseAPI(user.id) :
+                        (this.props.createProjectAdapter || accountProjectAPI)(user.id);
+                    this.privateAdapter = adapter;
+                    try {
+                        const saved = courseLoad ? {data: await adapter.project(this.props.courseId, this.props.courseDemo)} :
+                            await adapter.load(projectId);
+                        if (this.privateAdapter !== adapter || this.props.reduxProjectId !== projectId || account.getState().user?.id !== user.id) {
+                            return;
+                        }
+                        this.stopWaiting?.(); this.stopWaiting = null;
+                        if (courseLoad) {
+                            this.courseLoaded = true;
+                            this.props.onFetchedProjectData(saved.data, loadingState);
+                        } else this.props.onPrivateFetched(projectId, saved.data, saved.revision, user.id);
+                    } catch (error) {
+                        if (this.privateAdapter === adapter) this.props.onError(error);
+                    } finally {
+                        this.fetchingPrivate = null;
+                    }
+                };
+                this.stopWaiting = account.subscribe(load);
+                // subscribe immediately emits the current account state.
+                if (failed) {
+                    this.stopWaiting(); this.stopWaiting = null;
+                }
+                return;
+            }
+            if (projectId !== '0') {
+                this.props.onError(new Error('Invalid private project ID.')); return;
+            }
             // tw: clear and stop the VM before fetching
             // these will also happen later after the project is fetched, but fetching may take a while and
             // the project shouldn't be running while fetching the new project
             this.props.vm.clear();
             this.props.vm.quit();
 
-            let assetPromise;
-            // In case running in node...
-            let projectUrl = typeof URLSearchParams === 'undefined' ?
-                null :
-                new URLSearchParams(location.search).get('project_url');
-            if (projectUrl) {
-                if (
-                    !projectUrl.startsWith('http:') &&
-                    !projectUrl.startsWith('https:') &&
-                    !projectUrl.startsWith('data:')
-                ) {
-                    projectUrl = `https://${projectUrl}`;
-                }
-                assetPromise = fetch(projectUrl)
-                    .then(r => {
-                        if (!r.ok) {
-                            throw new Error(`Request returned status ${r.status}`);
-                        }
-                        return r.arrayBuffer();
-                    })
-                    .then(buffer => ({data: buffer}));
-            } else {
-                // TW: Temporary hack for project tokens
-                assetPromise = fetchProjectToken(projectId)
-                    .then(token => {
-                        storage.setProjectToken(token);
-                        return storage.load(storage.AssetType.Project, projectId, storage.DataFormat.JSON)
-                            .catch(err => {
-                                throw new ProjectFetchError(`Could not load project: ${err}`);
-                            });
-                    });
-            }
+            const assetPromise = storage.load(storage.AssetType.Project, '0', storage.DataFormat.JSON);
 
             return assetPromise
                 .then(projectAsset => {
                     if (projectAsset) {
                         this.props.onFetchedProjectData(projectAsset.data, loadingState);
-                    } else if (projectUrl) {
-                        // Treat failure to load as an error
-                        // Throw to be caught by catch later on
-                        throw new Error('Could not find project');
                     } else {
                         // We got a valid project token but no project data came back, so the token
                         // has likely expired or the project is otherwise unavailable.
@@ -162,10 +152,16 @@ const ProjectFetcherHOC = function (WrappedComponent) {
                     log.error(err);
                 });
         }
+        componentWillUnmount () {
+            this.privateAdapter?.dispose(); this.privateAdapter = null;
+            this.stopWaiting?.();
+        }
         render () {
             const {
                 /* eslint-disable no-unused-vars */
                 assetHost,
+                courseId,
+                createProjectAdapter,
                 intl,
                 isLoadingProject: isLoadingProjectProp,
                 loadingState,
@@ -173,6 +169,7 @@ const ProjectFetcherHOC = function (WrappedComponent) {
                 onError: onErrorProp,
                 onFetchedProjectData: onFetchedProjectDataProp,
                 onProjectUnchanged,
+                onPrivateFetched,
                 projectHost,
                 projectId,
                 reduxProjectId,
@@ -190,6 +187,10 @@ const ProjectFetcherHOC = function (WrappedComponent) {
         }
     }
     ProjectFetcherComponent.propTypes = {
+        courseId: PropTypes.string,
+        courseDemo: PropTypes.bool,
+        createProjectAdapter: PropTypes.func,
+        onPrivateFetched: PropTypes.func,
         assetHost: PropTypes.string,
         canSave: PropTypes.bool,
         intl: intlShape.isRequired,
@@ -211,7 +212,7 @@ const ProjectFetcherHOC = function (WrappedComponent) {
     };
     ProjectFetcherComponent.defaultProps = {
         assetHost: 'https://assets.scratch.mit.edu',
-        projectHost: 'https://projects.scratch.mit.edu'
+        projectHost: ''
     };
 
     const mapStateToProps = state => ({
@@ -224,6 +225,7 @@ const ProjectFetcherHOC = function (WrappedComponent) {
         vm: state.scratchGui.vm
     });
     const mapDispatchToProps = dispatch => ({
+        onPrivateFetched: (id, data, revision, owner) => dispatch(privateProjectFetched(id, data, revision, owner)),
         onActivateTab: tab => dispatch(activateTab(tab)),
         onError: error => dispatch(projectError(error)),
         onFetchedProjectData: (projectData, loadingState) =>

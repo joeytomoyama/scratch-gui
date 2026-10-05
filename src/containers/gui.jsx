@@ -24,7 +24,6 @@ import {
 import {
     closeCostumeLibrary,
     closeBackdropLibrary,
-    closeTelemetryModal,
     openExtensionLibrary
 } from '../reducers/modals';
 
@@ -37,7 +36,6 @@ import ProjectSaverHOC from '../lib/project-saver-hoc.jsx';
 import storage from '../lib/storage';
 import vmListenerHOC from '../lib/vm-listener-hoc.jsx';
 import vmManagerHOC from '../lib/vm-manager-hoc.jsx';
-import cloudManagerHOC from '../lib/cloud-manager-hoc.jsx';
 
 import GUIComponent from '../components/gui/gui.jsx';
 import {setIsScratchDesktop} from '../lib/isScratchDesktop.js';
@@ -142,7 +140,6 @@ GUI.propTypes = {
     onVmInit: PropTypes.func,
     projectHost: PropTypes.string,
     projectId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    telemetryModalVisible: PropTypes.bool,
     vm: PropTypes.instanceOf(VM).isRequired
 };
 
@@ -162,7 +159,6 @@ const mapStateToProps = state => {
         alertsVisible: state.scratchGui.alerts.visible,
         backdropLibraryVisible: state.scratchGui.modals.backdropLibrary,
         blocksTabVisible: state.scratchGui.editorTab.activeTabIndex === BLOCKS_TAB_INDEX,
-        cardsVisible: state.scratchGui.cards.visible,
         connectionModalVisible: state.scratchGui.modals.connectionModal,
         costumeLibraryVisible: state.scratchGui.modals.costumeLibrary,
         costumesTabVisible: state.scratchGui.editorTab.activeTabIndex === COSTUMES_TAB_INDEX,
@@ -180,11 +176,7 @@ const mapStateToProps = state => {
             state.scratchGui.targets.stage &&
             state.scratchGui.targets.stage.id === state.scratchGui.targets.editingTarget
         ),
-        telemetryModalVisible: state.scratchGui.modals.telemetryModal,
-        tipsLibraryVisible: state.scratchGui.modals.tipsLibrary,
-        usernameModalVisible: state.scratchGui.modals.usernameModal,
         settingsModalVisible: state.scratchGui.modals.settingsModal,
-        customExtensionModalVisible: state.scratchGui.modals.customExtensionModal,
         fontsModalVisible: state.scratchGui.modals.fontsModal,
         unknownPlatformModalVisible: state.scratchGui.modals.unknownPlatformModal,
         invalidProjectModalVisible: state.scratchGui.modals.invalidProjectModal,
@@ -198,8 +190,7 @@ const mapDispatchToProps = dispatch => ({
     onActivateCostumesTab: () => dispatch(activateTab(COSTUMES_TAB_INDEX)),
     onActivateSoundsTab: () => dispatch(activateTab(SOUNDS_TAB_INDEX)),
     onRequestCloseBackdropLibrary: () => dispatch(closeBackdropLibrary()),
-    onRequestCloseCostumeLibrary: () => dispatch(closeCostumeLibrary()),
-    onRequestCloseTelemetryModal: () => dispatch(closeTelemetryModal())
+    onRequestCloseCostumeLibrary: () => dispatch(closeCostumeLibrary())
 });
 
 const ConnectedGUI = injectIntl(connect(
@@ -222,8 +213,7 @@ const WrappedGui = compose(
     ProjectSaverHOC,
     vmListenerHOC,
     vmManagerHOC,
-    SBFileUploaderHOC,
-    cloudManagerHOC
+    SBFileUploaderHOC
 )(ConnectedGUI);
 
 WrappedGui.setAppElement = ReactModal.setAppElement;

@@ -29,7 +29,7 @@ const messages = defineMessages({
 const noop = () => {};
 
 const BrowserModal = ({intl, ...props}) => {
-    const title = props.onClickDesktopSettings ? messages.systemNotSupported : messages.browserNotSupported;
+    const title = messages.browserNotSupported;
     const incompatibleUserscripts = findIncompatibleUserscripts();
     return (
         <ReactModal
@@ -83,29 +83,7 @@ const BrowserModal = ({intl, ...props}) => {
                                 />
                             </p>
 
-                            {props.onClickDesktopSettings ? (
-                                <React.Fragment>
-                                    <p>
-                                        <FormattedMessage
-                                            defaultMessage={'You can also try toggling the "graphics acceleration" option in desktop settings:'}
-                                            description="Error message when browser does not support WebGL (desktop app version). Consider seeing how Chrome translates 'graphics acceleration' into your language."
-                                            id="tw.browserModal.webglDesktop"
-                                        />
-                                    </p>
-                                    <div className={styles.desktopSettingsOuter}>
-                                        <button
-                                            onClick={props.onClickDesktopSettings}
-                                            className={styles.desktopSettingsInner}
-                                        >
-                                            <FormattedMessage
-                                                defaultMessage="Open Desktop Settings"
-                                                description="Button in unsupported system modal to open desktop settings"
-                                                id="tw.browserModal.desktopSettings"
-                                            />
-                                        </button>
-                                    </div>
-                                </React.Fragment>
-                            ) : (
+                            {(
                                 <p>
                                     <FormattedMessage
                                         defaultMessage={'Use a recent version of Chrome, Firefox, or Safari, and ensure your graphics drivers are up to date. You can also try toggling the "graphics acceleration" or "hardware acceleration" option in your browser\'s settings.'}
@@ -126,8 +104,7 @@ const BrowserModal = ({intl, ...props}) => {
 
 BrowserModal.propTypes = {
     intl: intlShape.isRequired,
-    isRtl: PropTypes.bool,
-    onClickDesktopSettings: PropTypes.func
+    isRtl: PropTypes.bool
 };
 
 const WrappedBrowserModal = injectIntl(BrowserModal);

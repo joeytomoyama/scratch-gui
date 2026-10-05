@@ -9,7 +9,6 @@ import MenuLabel from './tw-menu-label.jsx';
 import TWAccentThemeMenu from './tw-theme-accent.jsx';
 import TWGuiThemeMenu from './tw-theme-gui.jsx';
 import TWBlocksThemeMenu from './tw-theme-blocks.jsx';
-import TWDesktopSettings from './tw-desktop-settings.jsx';
 
 import menuBarStyles from './menu-bar.css';
 import styles from './settings-menu.css';
@@ -21,7 +20,6 @@ const SettingsMenu = ({
     canChangeLanguage,
     canChangeTheme,
     isRtl,
-    onClickDesktopSettings,
     onOpenCustomSettings,
     onRequestClose,
     onRequestOpen,
@@ -67,7 +65,6 @@ const SettingsMenu = ({
                         <TWAccentThemeMenu />
                     </React.Fragment>
                 )}
-                {onClickDesktopSettings && <TWDesktopSettings onClick={onClickDesktopSettings} />}
             </MenuSection>
         </MenuBarMenu>
     </MenuLabel>
@@ -77,7 +74,6 @@ SettingsMenu.propTypes = {
     canChangeLanguage: PropTypes.bool,
     canChangeTheme: PropTypes.bool,
     isRtl: PropTypes.bool,
-    onClickDesktopSettings: PropTypes.func,
     onOpenCustomSettings: PropTypes.func,
     onRequestClose: PropTypes.func,
     onRequestOpen: PropTypes.func,

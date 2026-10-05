@@ -23,24 +23,17 @@ import {FormattedMessage, defineMessages, injectIntl, intlShape} from 'react-int
 import {getIsLoading} from '../reducers/project-state.js';
 import AppStateHOC from '../lib/app-state-hoc.jsx';
 import ErrorBoundaryHOC from '../lib/error-boundary-hoc.jsx';
-import TWProjectMetaFetcherHOC from '../lib/tw-project-meta-fetcher-hoc.jsx';
 import TWStateManagerHOC from '../lib/tw-state-manager-hoc.jsx';
 import SBFileUploaderHOC from '../lib/sb-file-uploader-hoc.jsx';
 import TWPackagerIntegrationHOC from '../lib/tw-packager-integration-hoc.jsx';
-import SettingsStore from '../addons/settings-store-singleton';
 import '../lib/tw-fix-history-api';
 import GUI from './render-gui.jsx';
 import MenuBar from '../components/menu-bar/menu-bar.jsx';
-import ProjectInput from '../components/tw-project-input/project-input.jsx';
 import FeaturedProjects from '../components/tw-featured-projects/featured-projects.jsx';
 import Description from '../components/tw-description/description.jsx';
 import BrowserModal from '../components/browser-modal/browser-modal.jsx';
-import CloudVariableBadge from '../containers/tw-cloud-variable-badge.jsx';
-import TWWindchimeSubmitter from '../containers/tw-windchime-submitter.jsx';
 import {isBrowserSupported} from '../lib/tw-environment-support-prober';
-import AddonChannels from '../addons/channels';
 import {loadServiceWorker} from './load-service-worker';
-import runAddons from '../addons/entry';
 import InvalidEmbed from '../components/tw-invalid-embed/invalid-embed.jsx';
 import {APP_NAME} from '../lib/brand.js';
 
@@ -48,12 +41,6 @@ import styles from './interface.css';
 
 const isInvalidEmbed = window.parent !== window;
 
-const handleClickAddonSettings = addonId => {
-    // addonId might be a string of the addon to focus on, undefined, or an event (treat like undefined)
-    const path = process.env.ROUTING_STYLE === 'wildcard' ? 'addons' : 'addons.html';
-    const url = `${process.env.ROOT}${path}${typeof addonId === 'string' ? `#${addonId}` : ''}`;
-    window.open(url);
-};
 
 const messages = defineMessages({
     defaultTitle: {
@@ -68,19 +55,6 @@ const WrappedMenuBar = compose(
     TWPackagerIntegrationHOC
 )(MenuBar);
 
-if (AddonChannels.reloadChannel) {
-    AddonChannels.reloadChannel.addEventListener('message', () => {
-        location.reload();
-    });
-}
-
-if (AddonChannels.changeChannel) {
-    AddonChannels.changeChannel.addEventListener('message', e => {
-        SettingsStore.setStoreWithVersionCheck(e.data);
-    });
-}
-
-runAddons();
 
 const Footer = () => (
     <footer className={styles.footer}>
@@ -128,20 +102,9 @@ const Footer = () => (
                     </a>
                 </div>
                 <div className={styles.footerSection}>
-                    <a href="https://desktop.turbowarp.org/">
-                        {/* Do not translate */}
-                        {'TurboWarp Desktop'}
-                    </a>
                     <a href="https://packager.turbowarp.org/">
                         {/* Do not translate */}
                         {'TurboWarp Packager'}
-                    </a>
-                    <a href="https://docs.turbowarp.org/embedding">
-                        <FormattedMessage
-                            defaultMessage="Embedding"
-                            description="Link in footer to embedding documentation for embedding link"
-                            id="tw.footer.embed"
-                        />
                     </a>
                     <a href="https://docs.turbowarp.org/url-parameters">
                         <FormattedMessage
@@ -159,13 +122,6 @@ const Footer = () => (
                     </a>
                 </div>
                 <div className={styles.footerSection}>
-                    <a href="https://scratch.mit.edu/users/GarboMuffin/#comments">
-                        <FormattedMessage
-                            defaultMessage="Feedback & Bugs"
-                            description="Link to feedback/bugs page"
-                            id="tw.feedback"
-                        />
-                    </a>
                     <a href="https://github.com/TurboWarp/">
                         <FormattedMessage
                             defaultMessage="Source Code"
@@ -231,7 +187,6 @@ class Interface extends React.Component {
                 })}
                 dir={isRtl ? 'rtl' : 'ltr'}
             >
-                <TWWindchimeSubmitter />
                 {isHomepage ? (
                     <div className={styles.menu}>
                         <WrappedMenuBar
@@ -239,7 +194,6 @@ class Interface extends React.Component {
                             canManageFiles
                             canChangeTheme
                             enableSeeInside
-                            onClickAddonSettings={handleClickAddonSettings}
                         />
                     </div>
                 ) : null}
@@ -251,7 +205,6 @@ class Interface extends React.Component {
                     }) : null}
                 >
                     <GUI
-                        onClickAddonSettings={handleClickAddonSettings}
                         onUpdateProjectTitle={this.handleUpdateProjectTitle}
                         backpackVisible
                         backpackHost="_local_"
@@ -261,14 +214,6 @@ class Interface extends React.Component {
                         <React.Fragment>
                             {isBrowserSupported() ? null : (
                                 <BrowserModal isRtl={isRtl} />
-                            )}
-                            <div className={styles.section}>
-                                <ProjectInput />
-                            </div>
-                            {hasCloudVariables && projectId !== '0' && (
-                                <div className={styles.section}>
-                                    <CloudVariableBadge />
-                                </div>
                             )}
                             {description.instructions || description.credits ? (
                                 <div className={styles.section}>
@@ -283,7 +228,7 @@ class Interface extends React.Component {
                                 <p>
                                     <FormattedMessage
                                         // eslint-disable-next-line max-len
-                                        defaultMessage="{APP_NAME} is a Scratch mod that compiles projects to JavaScript to make them run really fast. Try it out by inputting a project ID or URL above or choosing a featured project below."
+                                        defaultMessage="{APP_NAME} is a Scratch mod that compiles projects to JavaScript to make them run really fast. Try a featured project below."
                                         description="Description of TurboWarp on the homepage"
                                         id="tw.home.description"
                                         values={{
@@ -343,7 +288,6 @@ const ConnectedInterface = injectIntl(connect(
 const WrappedInterface = compose(
     AppStateHOC,
     ErrorBoundaryHOC('TW Interface'),
-    TWProjectMetaFetcherHOC,
     TWStateManagerHOC,
     TWPackagerIntegrationHOC
 )(ConnectedInterface);

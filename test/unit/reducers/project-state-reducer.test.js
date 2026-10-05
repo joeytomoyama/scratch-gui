@@ -8,10 +8,8 @@ import projectStateReducer, {
     onFetchedProjectData,
     onLoadedProject,
     projectError,
-    remixProject,
     requestNewProject,
     requestProjectUpload,
-    saveProjectAsCopy,
     setProjectId
 } from '../../../src/reducers/project-state';
 
@@ -45,28 +43,6 @@ test('doneCreatingProject for new project with projectId type number shows proje
     const resultState = projectStateReducer(initialState, action);
     expect(resultState.loadingState).toBe(LoadingState.SHOWING_WITH_ID);
     expect(resultState.projectId).toBe(100);
-});
-
-test('doneCreatingProject for remix shows project with that id', () => {
-    const initialState = {
-        projectId: null,
-        loadingState: LoadingState.REMIXING
-    };
-    const action = doneCreatingProject('100', initialState.loadingState);
-    const resultState = projectStateReducer(initialState, action);
-    expect(resultState.loadingState).toBe(LoadingState.SHOWING_WITH_ID);
-    expect(resultState.projectId).toBe('100');
-});
-
-test('doneCreatingProject for save as copy shows project with that id', () => {
-    const initialState = {
-        projectId: null,
-        loadingState: LoadingState.CREATING_COPY
-    };
-    const action = doneCreatingProject('100', initialState.loadingState);
-    const resultState = projectStateReducer(initialState, action);
-    expect(resultState.loadingState).toBe(LoadingState.SHOWING_WITH_ID);
-    expect(resultState.projectId).toBe('100');
 });
 
 test('onFetchedProjectData with id loads project data into vm', () => {
@@ -242,17 +218,6 @@ test('doneUpdatingProject with id results in state SHOWING_WITH_ID', () => {
     expect(resultState.projectId).toBe('100');
 });
 
-test('doneUpdatingProject with id, before copy occurs, results in state CREATING_COPY', () => {
-    const initialState = {
-        projectId: '100',
-        loadingState: LoadingState.UPDATING_BEFORE_COPY
-    };
-    const action = doneUpdatingProject(initialState.loadingState);
-    const resultState = projectStateReducer(initialState, action);
-    expect(resultState.loadingState).toBe(LoadingState.CREATING_COPY);
-    expect(resultState.projectId).toBe('100');
-});
-
 test('doneUpdatingProject with id, before new, results in state FETCHING_NEW_DEFAULT', () => {
     const initialState = {
         projectId: '100',
@@ -378,28 +343,6 @@ test('autoUpdateProject should prepare to update', () => {
     expect(resultState.projectId).toBe('100');
 });
 
-test('saveProjectAsCopy should save, before preparing to save as a copy', () => {
-    const initialState = {
-        projectId: '100',
-        loadingState: LoadingState.SHOWING_WITH_ID
-    };
-    const action = saveProjectAsCopy();
-    const resultState = projectStateReducer(initialState, action);
-    expect(resultState.loadingState).toBe(LoadingState.UPDATING_BEFORE_COPY);
-    expect(resultState.projectId).toBe('100');
-});
-
-test('remixProject should prepare to remix', () => {
-    const initialState = {
-        projectId: '100',
-        loadingState: LoadingState.SHOWING_WITH_ID
-    };
-    const action = remixProject();
-    const resultState = projectStateReducer(initialState, action);
-    expect(resultState.loadingState).toBe(LoadingState.REMIXING);
-    expect(resultState.projectId).toBe('100');
-});
-
 test('projectError from various states should show error', () => {
     const startStates = [
         LoadingState.AUTO_UPDATING,
@@ -409,8 +352,6 @@ test('projectError from various states should show error', () => {
         LoadingState.LOADING_VM_NEW_DEFAULT,
         LoadingState.LOADING_VM_WITH_ID,
         LoadingState.MANUAL_UPDATING,
-        LoadingState.REMIXING,
-        LoadingState.CREATING_COPY,
         LoadingState.UPDATING_BEFORE_NEW
     ];
     for (const startState of startStates) {
@@ -449,9 +390,7 @@ test('fatal projectError should show error state', () => {
 test('non-fatal projectError should show normal state', () => {
     const startStates = [
         LoadingState.AUTO_UPDATING,
-        LoadingState.CREATING_COPY,
         LoadingState.MANUAL_UPDATING,
-        LoadingState.REMIXING,
         LoadingState.UPDATING_BEFORE_NEW
     ];
     for (const startState of startStates) {

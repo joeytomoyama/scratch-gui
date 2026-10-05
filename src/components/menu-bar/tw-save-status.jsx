@@ -12,39 +12,50 @@ const TWSaveStatus = ({
     alertsList,
     fileHandle,
     projectChanged,
+    persistence,
+    onSave,
     showSaveFilePicker
-}) => (
-    filterInlineAlerts(alertsList).length > 0 ? (
-        <InlineMessages />
-    ) : projectChanged && (
-        <SB3Downloader
-            showSaveFilePicker={showSaveFilePicker}
-        >
-            {(_className, _downloadProjectCallback, {smartSave}) => (
-                <div
-                    onClick={smartSave}
-                    className={styles.saveNow}
-                >
-                    {fileHandle ? (
-                        <FormattedMessage
-                            defaultMessage="Save as {file}"
-                            description="Menu bar item to save project to an existing file on the user's computer"
-                            id="tw.menuBar.saveAs"
-                            values={{
-                                file: fileHandle.name
-                            }}
-                        />
-                    ) : (
-                        <FormattedMessage
-                            defaultMessage="Save to your computer"
-                            description="Menu bar item for downloading a project to your computer"
-                            id="gui.menuBar.downloadToComputer"
-                        />
-                    )}
-                </div>
-            )}
-        </SB3Downloader>
-    ));
+}) => (<React.Fragment>
+    <button
+        type="button"
+        onClick={onSave}
+        disabled={persistence.status === 'Sign in to save' || persistence.status === 'Reload to access this project'}
+    >
+        {persistence.status.startsWith('Save failed') ? 'Retry Save' : 'Save'}
+    </button>
+    <span role="status">{persistence.status}</span>
+    {
+        filterInlineAlerts(alertsList).length > 0 ? (
+            <InlineMessages />
+        ) : projectChanged && (
+            <SB3Downloader
+                showSaveFilePicker={showSaveFilePicker}
+            >
+                {(_className, _downloadProjectCallback, {smartSave}) => (
+                    <div
+                        onClick={smartSave}
+                        className={styles.saveNow}
+                    >
+                        {fileHandle ? (
+                            <FormattedMessage
+                                defaultMessage="Save as {file}"
+                                description="Menu bar item to save project to an existing file on the user's computer"
+                                id="tw.menuBar.saveAs"
+                                values={{
+                                    file: fileHandle.name
+                                }}
+                            />
+                        ) : (
+                            <FormattedMessage
+                                defaultMessage="Save to your computer"
+                                description="Menu bar item for downloading a project to your computer"
+                                id="gui.menuBar.downloadToComputer"
+                            />
+                        )}
+                    </div>
+                )}
+            </SB3Downloader>
+        )}</React.Fragment>);
 
 TWSaveStatus.propTypes = {
     alertsList: PropTypes.arrayOf(PropTypes.object),
@@ -52,13 +63,17 @@ TWSaveStatus.propTypes = {
         name: PropTypes.string
     }),
     projectChanged: PropTypes.bool,
+    persistence: PropTypes.object,
+    onSave: PropTypes.func,
     showSaveFilePicker: PropTypes.func
 };
 
 const mapStateToProps = state => ({
     alertsList: state.scratchGui.alerts.alertsList,
     fileHandle: state.scratchGui.tw.fileHandle,
-    projectChanged: state.scratchGui.projectChanged
+    projectChanged: state.scratchGui.projectChanged,
+    persistence: state.scratchGui.persistence,
+    onSave: () => state.scratchGui.vm.emit('PRIVATE_PROJECT_SAVE')
 });
 
 export default connect(

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import {Provider} from 'react-redux';
 import {createStore, combineReducers, compose} from 'redux';
 import ConnectedIntlProvider from './connected-intl-provider.jsx';
-import AddonHooks from '../addons/hooks';
 
 import localesReducer, {initLocale, localesInitialState} from '../reducers/locales';
 
@@ -52,8 +51,7 @@ const AppStateHOC = function (WrappedComponent, localesOnly) {
                     guiMiddleware,
                     initFullScreen,
                     initPlayer,
-                    initEmbedded,
-                    initTelemetryModal
+                    initEmbedded
                 } = guiRedux;
                 const {ScratchPaintReducer} = require('./tw-scratch-paint');
 
@@ -65,8 +63,6 @@ const AppStateHOC = function (WrappedComponent, localesOnly) {
                     if (props.isPlayerOnly) {
                         initializedGui = initPlayer(initializedGui);
                     }
-                } else if (props.showTelemetryModal) {
-                    initializedGui = initTelemetryModal(initializedGui);
                 }
                 if (props.isEmbedded) {
                     initializedGui = initEmbedded(initializedGui);
@@ -83,18 +79,13 @@ const AppStateHOC = function (WrappedComponent, localesOnly) {
                 enhancer = composeEnhancers(guiMiddleware);
             }
             const reducer = combineReducers(reducers);
-            const reducer2 = (previousState, action) => {
-                const nextState = reducer(previousState, action);
-                AddonHooks.appStateReducer(action, previousState, nextState);
-                return nextState;
-            };
+
             this.store = createStore(
-                reducer2,
+                reducer,
                 initialState,
                 enhancer
             );
             window.ReduxStore = this.store;
-            AddonHooks.appStateStore = this.store;
         }
         componentDidUpdate (prevProps) {
             if (localesOnly) return;
@@ -109,7 +100,6 @@ const AppStateHOC = function (WrappedComponent, localesOnly) {
             const {
                 isFullScreen, // eslint-disable-line no-unused-vars
                 isPlayerOnly, // eslint-disable-line no-unused-vars
-                showTelemetryModal, // eslint-disable-line no-unused-vars
                 ...componentProps
             } = this.props;
             return (
@@ -127,7 +117,6 @@ const AppStateHOC = function (WrappedComponent, localesOnly) {
         isFullScreen: PropTypes.bool,
         isPlayerOnly: PropTypes.bool,
         isTelemetryEnabled: PropTypes.bool,
-        showTelemetryModal: PropTypes.bool,
         isEmbedded: PropTypes.bool
     };
     return AppStateWrapper;

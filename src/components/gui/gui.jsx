@@ -23,16 +23,11 @@ import Watermark from '../../containers/watermark.jsx';
 
 import Backpack from '../../containers/backpack.jsx';
 import BrowserModal from '../browser-modal/browser-modal.jsx';
-import TipsLibrary from '../../containers/tips-library.jsx';
-import Cards from '../../containers/cards.jsx';
 import Alerts from '../../containers/alerts.jsx';
 import DragLayer from '../../containers/drag-layer.jsx';
 import ConnectionModal from '../../containers/connection-modal.jsx';
-import TelemetryModal from '../telemetry-modal/telemetry-modal.jsx';
-import TWUsernameModal from '../../containers/tw-username-modal.jsx';
 import TWSettingsModal from '../../containers/tw-settings-modal.jsx';
 import TWSecurityManager from '../../containers/tw-security-manager.jsx';
-import TWCustomExtensionModal from '../../containers/tw-custom-extension-modal.jsx';
 import TWRestorePointManager from '../../containers/tw-restore-point-manager.jsx';
 import TWFontsModal from '../../containers/tw-fonts-modal.jsx';
 import TWUnknownPlatformModal from '../../containers/tw-unknown-platform-modal.jsx';
@@ -85,7 +80,6 @@ const GUIComponent = props => {
         backpackVisible,
         blocksId,
         blocksTabVisible,
-        cardsVisible,
         canChangeLanguage,
         canChangeTheme,
         canCreateNew,
@@ -110,7 +104,6 @@ const GUIComponent = props => {
         isRtl,
         isShared,
         isWindowFullScreen,
-        isTelemetryEnabled,
         isTotallyNormal,
         loading,
         logo,
@@ -119,8 +112,6 @@ const GUIComponent = props => {
         onClickAccountNav,
         onCloseAccountNav,
         onClickAddonSettings,
-        onClickDesktopSettings,
-        onClickNewWindow,
         onClickPackager,
         onLogOut,
         onOpenRegistration,
@@ -130,18 +121,12 @@ const GUIComponent = props => {
         onActivateTab,
         onClickLogo,
         onExtensionButtonClick,
-        onOpenCustomExtensionModal,
         onProjectTelemetryEvent,
         onRequestCloseBackdropLibrary,
         onRequestCloseCostumeLibrary,
-        onRequestCloseTelemetryModal,
         onSeeCommunity,
         onShare,
-        onShowPrivacyPolicy,
         onStartSelectingFileUpload,
-        onTelemetryModalCancel,
-        onTelemetryModalOptIn,
-        onTelemetryModalOptOut,
         securityManager,
         showComingSoon,
         showOpenFilePicker,
@@ -149,12 +134,8 @@ const GUIComponent = props => {
         soundsTabVisible,
         stageSizeMode,
         targetIsStage,
-        telemetryModalVisible,
         theme,
-        tipsLibraryVisible,
-        usernameModalVisible,
         settingsModalVisible,
-        customExtensionModalVisible,
         fontsModalVisible,
         unknownPlatformModalVisible,
         invalidProjectModalVisible,
@@ -186,9 +167,7 @@ const GUIComponent = props => {
             <React.Fragment>
                 <TWSecurityManager securityManager={securityManager} />
                 <TWRestorePointManager />
-                {usernameModalVisible && <TWUsernameModal />}
                 {settingsModalVisible && <TWSettingsModal />}
-                {customExtensionModalVisible && <TWCustomExtensionModal />}
                 {fontsModalVisible && <TWFontsModal />}
                 {unknownPlatformModalVisible && <TWUnknownPlatformModal />}
                 {invalidProjectModalVisible && <TWInvalidProjectModal />}
@@ -234,17 +213,6 @@ const GUIComponent = props => {
                 {...componentProps}
             >
                 {alwaysEnabledModals}
-                {telemetryModalVisible ? (
-                    <TelemetryModal
-                        isRtl={isRtl}
-                        isTelemetryEnabled={isTelemetryEnabled}
-                        onCancel={onTelemetryModalCancel}
-                        onOptIn={onTelemetryModalOptIn}
-                        onOptOut={onTelemetryModalOptOut}
-                        onRequestClose={onRequestCloseTelemetryModal}
-                        onShowPrivacyPolicy={onShowPrivacyPolicy}
-                    />
-                ) : null}
                 {loading ? (
                     <Loader isFullScreen />
                 ) : null}
@@ -257,15 +225,8 @@ const GUIComponent = props => {
                 {isBrowserSupported() ? null : (
                     <BrowserModal
                         isRtl={isRtl}
-                        onClickDesktopSettings={onClickDesktopSettings}
                     />
                 )}
-                {tipsLibraryVisible ? (
-                    <TipsLibrary />
-                ) : null}
-                {cardsVisible ? (
-                    <Cards />
-                ) : null}
                 {alertsVisible ? (
                     <Alerts className={styles.alertsContainer} />
                 ) : null}
@@ -312,8 +273,6 @@ const GUIComponent = props => {
                     onClickAbout={onClickAbout}
                     onClickAccountNav={onClickAccountNav}
                     onClickAddonSettings={onClickAddonSettings}
-                    onClickDesktopSettings={onClickDesktopSettings}
-                    onClickNewWindow={onClickNewWindow}
                     onClickPackager={onClickPackager}
                     onClickLogo={onClickLogo}
                     onCloseAccountNav={onCloseAccountNav}
@@ -396,7 +355,6 @@ const GUIComponent = props => {
                                                 media: `${basePath}static/${theme.getBlocksMediaFolder()}/`
                                             }}
                                             stageSize={stageSize}
-                                            onOpenCustomExtensionModal={onOpenCustomExtensionModal}
                                             theme={theme}
                                             vm={vm}
                                         />
@@ -477,7 +435,6 @@ GUIComponent.propTypes = {
     canSave: PropTypes.bool,
     canShare: PropTypes.bool,
     canUseCloud: PropTypes.bool,
-    cardsVisible: PropTypes.bool,
     children: PropTypes.node,
     costumeLibraryVisible: PropTypes.bool,
     costumesTabVisible: PropTypes.bool,
@@ -502,26 +459,18 @@ GUIComponent.propTypes = {
     onActivateTab: PropTypes.func,
     onClickAccountNav: PropTypes.func,
     onClickAddonSettings: PropTypes.func,
-    onClickDesktopSettings: PropTypes.func,
-    onClickNewWindow: PropTypes.func,
     onClickPackager: PropTypes.func,
     onClickLogo: PropTypes.func,
     onCloseAccountNav: PropTypes.func,
     onExtensionButtonClick: PropTypes.func,
-    onOpenCustomExtensionModal: PropTypes.func,
     onLogOut: PropTypes.func,
     onOpenRegistration: PropTypes.func,
     onRequestCloseBackdropLibrary: PropTypes.func,
     onRequestCloseCostumeLibrary: PropTypes.func,
-    onRequestCloseTelemetryModal: PropTypes.func,
     onSeeCommunity: PropTypes.func,
     onShare: PropTypes.func,
-    onShowPrivacyPolicy: PropTypes.func,
     onStartSelectingFileUpload: PropTypes.func,
     onTabSelect: PropTypes.func,
-    onTelemetryModalCancel: PropTypes.func,
-    onTelemetryModalOptIn: PropTypes.func,
-    onTelemetryModalOptOut: PropTypes.func,
     onToggleLoginOpen: PropTypes.func,
     renderLogin: PropTypes.func,
     securityManager: PropTypes.shape({}),
@@ -531,12 +480,8 @@ GUIComponent.propTypes = {
     soundsTabVisible: PropTypes.bool,
     stageSizeMode: PropTypes.oneOf(Object.keys(STAGE_SIZE_MODES)),
     targetIsStage: PropTypes.bool,
-    telemetryModalVisible: PropTypes.bool,
     theme: PropTypes.instanceOf(Theme),
-    tipsLibraryVisible: PropTypes.bool,
-    usernameModalVisible: PropTypes.bool,
     settingsModalVisible: PropTypes.bool,
-    customExtensionModalVisible: PropTypes.bool,
     fontsModalVisible: PropTypes.bool,
     unknownPlatformModalVisible: PropTypes.bool,
     invalidProjectModalVisible: PropTypes.bool,
@@ -570,7 +515,7 @@ const mapStateToProps = state => ({
     customStageSize: state.scratchGui.customStageSize,
     isWindowFullScreen: state.scratchGui.tw.isWindowFullScreen,
     // This is the button's mode, as opposed to the actual current state
-    blocksId: state.scratchGui.timeTravel.year.toString(),
+    blocksId: 'classroom',
     stageSizeMode: state.scratchGui.stageSize.stageSize,
     theme: state.scratchGui.theme.theme
 });

@@ -7,9 +7,6 @@ import log from './log';
 import {defineMessages, intlShape, injectIntl} from 'react-intl';
 
 import {
-    setUsername
-} from '../reducers/tw';
-import {
     defaultProjectId,
     setProjectId
 } from '../reducers/project-state';
@@ -17,7 +14,6 @@ import {
     setPlayer,
     setFullScreen
 } from '../reducers/mode';
-import {generateRandomUsername} from './tw-username';
 import {setSearchParams} from './tw-navigation-utils';
 import {defaultStageSize} from '../reducers/custom-stage-size';
 
@@ -36,31 +32,13 @@ const messages = defineMessages({
     }
 });
 
-const USERNAME_KEY = 'tw:username';
 
 /**
  * The State Manager is responsible for managing persistent state and the URL.
  */
 
-const setLocalStorage = (key, value) => {
-    try {
-        localStorage.setItem(key, value);
-    } catch (e) {
-        // ignore
-    }
-};
-
-const getLocalStorage = key => {
-    try {
-        return localStorage.getItem(key);
-    } catch (e) {
-        // ignore
-    }
-    return null;
-};
-
 const readHashProjectId = () => {
-    const match = location.hash.match(/#(\d+)/);
+    const match = location.hash.match(/^#([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|0)(?:\?|$)/i);
     return match === null ? null : match[1];
 };
 
@@ -202,7 +180,7 @@ class WildcardRouter extends Router {
             }
         };
 
-        if (+parts[0] && Number.isFinite(+parts[0])) {
+        if (/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(parts[0])) {
             parseProjectId(parts[0]);
             parsePageType(parts[1]);
         } else {
@@ -300,24 +278,6 @@ const TWStateManager = function (WrappedComponent) {
                 this.props.vm.setInterpolation(true);
             }
 
-            if (urlParams.has('username')) {
-                const username = urlParams.get('username');
-                // Do not save username when loaded from URL
-                this.doNotPersistUsername = username;
-                this.props.onSetUsername(username);
-            } else {
-                const persistentUsername = this.props.isEmbedded ? null : getLocalStorage(USERNAME_KEY);
-                if (persistentUsername === null) {
-                    const randomUsername = generateRandomUsername();
-                    this.props.onSetUsername(randomUsername);
-                    if (this.props.isEmbedded) {
-                        this.doNotPersistUsername = randomUsername;
-                    }
-                } else {
-                    this.props.onSetUsername(persistentUsername);
-                }
-            }
-
             if (urlParams.has('hqpen')) {
                 this.props.vm.renderer.setUseHighQualityRender(true);
             }
@@ -361,9 +321,6 @@ const TWStateManager = function (WrappedComponent) {
                 });
             }
 
-            for (const extension of urlParams.getAll('extension')) {
-                this.props.vm.extensionManager.loadExtensionURL(extension);
-            }
 
             const routerCallbacks = {
                 onSetProjectId: this.onSetProjectId,
@@ -376,10 +333,7 @@ const TWStateManager = function (WrappedComponent) {
             window.addEventListener('popstate', this.handlePopState);
         }
         componentDidUpdate (prevProps) {
-            if (this.props.username !== prevProps.username && this.props.username !== this.doNotPersistUsername) {
-                // TODO: this always restores the current username once at startup, which is unnecessary
-                setLocalStorage(USERNAME_KEY, this.props.username);
-            }
+
 
             if (
                 this.props.reduxProjectId !== prevProps.reduxProjectId ||
@@ -526,10 +480,8 @@ const TWStateManager = function (WrappedComponent) {
                 onSetIsFullScreen,
                 onSetIsPlayerOnly,
                 onSetProjectId,
-                onSetUsername,
                 reduxProjectId,
                 routingStyle,
-                username,
                 vm,
                 /* eslint-enable no-unused-vars */
                 ...props
@@ -568,10 +520,8 @@ const TWStateManager = function (WrappedComponent) {
         onSetIsFullScreen: PropTypes.func,
         onSetIsPlayerOnly: PropTypes.func,
         onSetProjectId: PropTypes.func,
-        onSetUsername: PropTypes.func,
         reduxProjectId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         routingStyle: PropTypes.oneOf(Object.keys(routers)),
-        username: PropTypes.string,
         vm: PropTypes.instanceOf(VM)
     };
     StateManagerComponent.defaultProps = {
@@ -590,14 +540,12 @@ const TWStateManager = function (WrappedComponent) {
         framerate: state.scratchGui.tw.framerate,
         interpolation: state.scratchGui.tw.interpolation,
         turbo: state.scratchGui.vmStatus.turbo,
-        username: state.scratchGui.tw.username,
         vm: state.scratchGui.vm
     });
     const mapDispatchToProps = dispatch => ({
         onSetIsFullScreen: isFullScreen => dispatch(setFullScreen(isFullScreen)),
         onSetIsPlayerOnly: isPlayerOnly => dispatch(setPlayer(isPlayerOnly)),
-        onSetProjectId: projectId => dispatch(setProjectId(projectId)),
-        onSetUsername: username => dispatch(setUsername(username))
+        onSetProjectId: projectId => dispatch(setProjectId(projectId))
     });
     return injectIntl(connect(
         mapStateToProps,

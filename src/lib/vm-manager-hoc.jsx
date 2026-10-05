@@ -14,6 +14,8 @@ import {
     projectError
 } from '../reducers/project-state';
 import log from './log';
+import {configureExtensionPolicy} from './classroom-extension-policy';
+
 
 /**
  * List of fonts that could be used by security prompts.
@@ -33,6 +35,7 @@ const vmManagerHOC = function (WrappedComponent) {
     class VMManager extends React.Component {
         constructor (props) {
             super(props);
+            configureExtensionPolicy(props.vm);
             bindAll(this, [
                 'loadProject'
             ]);

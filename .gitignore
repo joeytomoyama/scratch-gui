@@ -26,3 +26,7 @@ npm-*
 
 # for act
 .secrets
+.env
+.env.local
+/supabase/.temp
+/supabase/.branches
