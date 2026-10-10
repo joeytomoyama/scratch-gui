@@ -42,6 +42,7 @@ import LoadScratchBlocksHOC from '../lib/tw-load-scratch-blocks-hoc.jsx';
 import {findTopBlock} from '../lib/backpack/code-payload.js';
 import {gentlyRequestPersistentStorage} from '../lib/tw-persistent-storage.js';
 import {TutorHighlights} from '../lib/tutor/highlights';
+import PaletteCategoryBackgrounds from '../lib/palette-category-backgrounds';
 
 // TW: Strings we add to scratch-blocks are localized here
 const messages = defineMessages({
@@ -161,6 +162,7 @@ class Blocks extends React.Component {
             Blocks.defaultOptions
         );
         this.workspace = this.ScratchBlocks.inject(this.blocks, workspaceConfig);
+        this.paletteBackgrounds = new PaletteCategoryBackgrounds(this.workspace);
         this.tutorHighlights = new TutorHighlights({
             vm: this.props.vm,
             workspace: this.workspace,
@@ -290,6 +292,7 @@ class Blocks extends React.Component {
         this.detachVM();
         this.unmounted = true;
         this.tutorHighlights.dispose();
+        this.paletteBackgrounds.dispose();
         this.workspace.dispose();
         clearTimeout(this.toolboxUpdateTimeout);
 

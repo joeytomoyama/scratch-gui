@@ -14,6 +14,7 @@ class ActionMenu extends React.Component {
         bindAll(this, [
             'clickDelayer',
             'handleClosePopover',
+            'handleBlur',
             'handleToggleOpenState',
             'handleTouchStart',
             'handleTouchOutside',
@@ -40,9 +41,11 @@ class ActionMenu extends React.Component {
         //  which should be refactored.
         return newState.isOpen !== this.state.isOpen ||
             newState.forceHide !== this.state.forceHide ||
-            newProps.title !== this.props.title;
+            newProps.title !== this.props.title ||
+            newProps.mainContent !== this.props.mainContent;
     }
     componentWillUnmount () {
+        clearTimeout(this.closeTimeoutId);
         this.buttonRef.removeEventListener('touchstart', this.handleTouchStart);
         document.removeEventListener('touchstart', this.handleTouchOutside);
     }
@@ -51,6 +54,9 @@ class ActionMenu extends React.Component {
             this.setState({isOpen: false});
             this.closeTimeoutId = null;
         }, CLOSE_DELAY);
+    }
+    handleBlur (event) {
+        if (!event.currentTarget.contains(event.relatedTarget)) this.handleClosePopover();
     }
     handleToggleOpenState () {
         // Mouse enter back in after timeout was started prevents it from closing.
@@ -103,6 +109,8 @@ class ActionMenu extends React.Component {
         const {
             className,
             img: mainImg,
+            mainContent,
+            mainButtonClassName,
             title: mainTitle,
             moreButtons,
             tooltipPlace,
@@ -118,20 +126,22 @@ class ActionMenu extends React.Component {
                 ref={this.setContainerRef}
                 onMouseEnter={this.handleToggleOpenState}
                 onMouseLeave={this.handleClosePopover}
+                onFocus={this.handleToggleOpenState}
+                onBlur={this.handleBlur}
             >
                 <button
                     aria-label={mainTitle}
-                    className={classNames(styles.button, styles.mainButton)}
+                    className={classNames(styles.button, styles.mainButton, mainButtonClassName)}
                     data-for={this.mainTooltipId}
                     data-tip={mainTitle}
                     ref={this.setButtonRef}
                     onClick={this.clickDelayer(onClick)}
                 >
-                    <img
+                    {mainContent || <img
                         className={styles.mainIcon}
                         draggable={false}
                         src={mainImg}
-                    />
+                    />}
                 </button>
                 <ReactTooltip
                     className={styles.tooltip}
@@ -191,6 +201,8 @@ class ActionMenu extends React.Component {
 }
 
 ActionMenu.propTypes = {
+    mainContent: PropTypes.node,
+    mainButtonClassName: PropTypes.string,
     className: PropTypes.string,
     img: PropTypes.string,
     moreButtons: PropTypes.arrayOf(PropTypes.shape({

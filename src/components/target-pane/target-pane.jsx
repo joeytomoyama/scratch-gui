@@ -58,6 +58,13 @@ const TargetPane = ({
             raised={raiseSprites}
             selectedId={editingTarget}
             spriteFileInput={fileInputRef}
+            stageSelector={stage.id ? <StageSelector
+                asset={stage.costume && stage.costume.asset}
+                backdropCount={stage.costumeCount}
+                id={stage.id}
+                selected={stage.id === editingTarget}
+                onSelect={onSelectSprite}
+            /> : null}
             sprites={sprites}
             stageSize={stageSize}
             onChangeSpriteDirection={onChangeSpriteDirection}
@@ -78,17 +85,7 @@ const TargetPane = ({
             onSpriteUpload={onSpriteUpload}
             onSurpriseSpriteClick={onSurpriseSpriteClick}
         />
-        <div className={styles.stageSelectorWrapper}>
-            {stage.id && <StageSelector
-                asset={
-                    stage.costume &&
-                    stage.costume.asset
-                }
-                backdropCount={stage.costumeCount}
-                id={stage.id}
-                selected={stage.id === editingTarget}
-                onSelect={onSelectSprite}
-            />}
+        <div>
             <div>
                 {spriteLibraryVisible ? (
                     <SpriteLibrary

@@ -116,7 +116,7 @@ class SpriteInfo extends React.Component {
                         </div> :
                         null
                 }
-                <Label text="x">
+                <Label text="X">
                     <BufferedInput
                         small
                         disabled={this.props.disabled}
@@ -144,7 +144,7 @@ class SpriteInfo extends React.Component {
                         </div> :
                         null
                 }
-                <Label text="y">
+                <Label text="Y">
                     <BufferedInput
                         small
                         disabled={this.props.disabled}
@@ -167,8 +167,10 @@ class SpriteInfo extends React.Component {
                         </div>
                     </div>
                     <div className={classNames(styles.row, styles.rowSecondary)}>
-                        {xPosition}
-                        {yPosition}
+                        <div className={styles.positionGroup}>
+                            {xPosition}
+                            {yPosition}
+                        </div>
                     </div>
                 </Box>
             );
@@ -185,8 +187,10 @@ class SpriteInfo extends React.Component {
                             {spriteNameInput}
                         </Label>
                     </div>
-                    {xPosition}
-                    {yPosition}
+                    <div className={styles.positionGroup}>
+                        {xPosition}
+                        {yPosition}
+                    </div>
                 </div>
                 <div className={classNames(styles.row, styles.rowSecondary)}>
                     <div className={labelAbove ? styles.column : styles.group}>
@@ -199,6 +203,7 @@ class SpriteInfo extends React.Component {
                                 null
                         }
                         <ToggleButtons
+                            className={styles.visibilityButtons}
                             buttons={[
                                 {
                                     handleClick: this.props.onClickVisible,

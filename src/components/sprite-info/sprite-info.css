@@ -3,6 +3,7 @@
 @import "../../css/filters.css";
 
 .sprite-info {
+    flex-shrink: 0;
     padding: 0.75rem;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     background-color: $ui-white;
@@ -15,13 +16,54 @@
 .row {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 .row-primary {
+    justify-content: space-around;
     margin-bottom: 0.5rem;
 }
 
 .label { opacity: 0.8; }
+
+.position-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 10px;
+    background: color-mix(in srgb, $looks-secondary 9%, $ui-white);
+}
+
+.sprite-info input {
+    border-radius: 10px;
+}
+
+.sprite-info label > span {
+    font-weight: normal;
+}
+
+.visibility-buttons button:first-child,
+.visibility-buttons button:first-child:focus::before {
+    border-radius: 10px 0 0 10px;
+}
+
+.visibility-buttons button:last-child,
+.visibility-buttons button:last-child:focus::before {
+    border-radius: 0 10px 10px 0;
+}
+
+[dir="rtl"] .visibility-buttons button:first-child,
+[dir="rtl"] .visibility-buttons button:first-child:focus::before {
+    border-radius: 0 10px 10px 0;
+}
+
+[dir="rtl"] .visibility-buttons button:last-child,
+[dir="rtl"] .visibility-buttons button:last-child:focus::before {
+    border-radius: 10px 0 0 10px;
+}
 
 .group {
     display: inline-flex;

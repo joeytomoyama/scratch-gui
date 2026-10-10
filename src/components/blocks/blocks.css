@@ -125,6 +125,12 @@
     font-size: 0.65rem;
 }
 
+.blocks :global(.scratchCategoryItemBubble) {
+    border-radius: 5px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
 .blocks :global(.blocklyMinimalBody) {
     min-width: auto;
     min-height: auto;

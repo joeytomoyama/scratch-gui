@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import omit from 'lodash.omit';
 import PropTypes from 'prop-types';
 import React from 'react';
 import {defineMessages, intlShape, injectIntl, FormattedMessage} from 'react-intl';
@@ -6,9 +7,9 @@ import {defineMessages, intlShape, injectIntl, FormattedMessage} from 'react-int
 import Box from '../box/box.jsx';
 import ActionMenu from '../action-menu/action-menu.jsx';
 import styles from './stage-selector.css';
+import spriteStyles from '../sprite-selector-item/sprite-selector-item.css';
 import {isRtl} from '@turbowarp/scratch-l10n';
 
-import backdropIcon from '../action-menu/icon--backdrop.svg';
 import fileUploadIcon from '../action-menu/icon--file-upload.svg';
 import paintIcon from '../action-menu/icon--paint.svg';
 import surpriseIcon from '../action-menu/icon--surprise.svg';
@@ -39,7 +40,6 @@ const messages = defineMessages({
 
 const StageSelector = props => {
     const {
-        backdropCount,
         containerRef,
         dragOver,
         fileInputRef,
@@ -66,38 +66,34 @@ const StageSelector = props => {
                 [styles.receivedBlocks]: receivedBlocks
             })}
             componentRef={containerRef}
-            onClick={onClick}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
-            {...componentProps}
+            {...omit(componentProps, ['backdropCount'])}
         >
-            <div className={styles.header}>
-                <div className={styles.headerTitle}>
-                    <FormattedMessage
-                        defaultMessage="Stage"
-                        description="Label for the stage in the stage selector"
-                        id="gui.stageSelector.stage"
-                    />
-                </div>
-            </div>
-            {url ? (
-                <img
-                    className={styles.costumeCanvas}
-                    src={url}
-                    draggable={false}
-                />
-            ) : null}
-            <div className={styles.label}>
-                <FormattedMessage
-                    defaultMessage="Backdrops"
-                    description="Label for the backdrops in the stage selector"
-                    id="gui.stageSelector.backdrops"
-                />
-            </div>
-            <div className={styles.count}>{backdropCount}</div>
             <ActionMenu
-                className={styles.addButton}
-                img={backdropIcon}
+                className={styles.stageMenu}
+                mainButtonClassName={classNames(spriteStyles.spriteSelectorItem, styles.stageTile, {
+                    [spriteStyles.isSelected]: selected
+                })}
+                mainContent={<React.Fragment>
+                    <span className={classNames(spriteStyles.spriteImageOuter, styles.preview)}>
+                        <span className={spriteStyles.spriteImageInner}>
+                            {url ? <img
+                                className={spriteStyles.spriteImage}
+                                src={url}
+                                alt=""
+                                draggable={false}
+                            /> : null}
+                        </span>
+                    </span>
+                    <span className={classNames(spriteStyles.spriteInfo, styles.tileName)}>
+                        <FormattedMessage
+                            defaultMessage="Stage"
+                            description="Label for the stage in the stage selector"
+                            id="gui.stageSelector.stage"
+                        />
+                    </span>
+                </React.Fragment>}
                 moreButtons={[
                     {
                         title: intl.formatMessage(messages.addBackdropFromFile),
@@ -122,9 +118,11 @@ const StageSelector = props => {
                         onClick: onNewBackdropClick
                     }
                 ]}
-                title={intl.formatMessage(messages.addBackdropFromLibrary)}
+                title={intl.formatMessage({
+                    id: 'gui.stageSelector.stage', defaultMessage: 'Stage'
+                })}
                 tooltipPlace={isRtl(intl.locale) ? 'right' : 'left'}
-                onClick={onNewBackdropClick}
+                onClick={onClick}
             />
         </Box>
     );

@@ -66,6 +66,7 @@ const SpriteSelectorComponent = function (props) {
         selectedId,
         spriteFileInput,
         sprites,
+        stageSelector,
         stageSize,
         ...componentProps
     } = props;
@@ -112,6 +113,9 @@ const SpriteSelectorComponent = function (props) {
                 onExportSprite={onExportSprite}
                 onSelectSprite={onSelectSprite}
             />
+            <div className={styles.stageFooter}>
+                {stageSelector}
+            </div>
             <ActionMenu
                 className={styles.addButton}
                 img={spriteIcon}
@@ -147,6 +151,7 @@ const SpriteSelectorComponent = function (props) {
 };
 
 SpriteSelectorComponent.propTypes = {
+    stageSelector: PropTypes.node,
     editingTarget: PropTypes.string,
     hoveredTarget: PropTypes.shape({
         hoveredSprite: PropTypes.string,
