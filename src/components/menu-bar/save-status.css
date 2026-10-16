@@ -1,13 +1,25 @@
-@import "../../css/colors.css";
-
-.save-now {
-    cursor: pointer;
-    padding: 0 0.5rem;
-    height: 100%;
-    display: flex;
+.save-button {
+    display: inline-flex;
     align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    white-space: nowrap;
 }
 
-.save-now:hover {
-    background-color: $ui-black-transparent;
+.spinner {
+    width: 1em;
+    height: 1em;
+    box-sizing: border-box;
+    border: 2px solid currentColor;
+    border-inline-end-color: transparent;
+    border-radius: 50%;
+    animation: saving .8s linear infinite;
+}
+
+@keyframes saving {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .spinner { animation: none; }
 }

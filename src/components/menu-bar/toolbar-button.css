@@ -1,0 +1,29 @@
+@import "../../css/colors.css";
+
+.button {
+    padding: .45rem .65rem;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 6px;
+    background: $ui-white;
+    color: $text-primary;
+    font: inherit;
+    cursor: pointer;
+}
+
+.button:hover:not(:disabled) {
+    background: $ui-secondary;
+}
+
+.button:active:not(:disabled) {
+    background: $ui-tertiary;
+}
+
+.button:focus-visible {
+    outline: 3px solid $text-primary;
+    outline-offset: 2px;
+}
+
+.button:disabled {
+    opacity: .6;
+    cursor: default;
+}

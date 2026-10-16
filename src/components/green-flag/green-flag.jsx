@@ -5,6 +5,11 @@ import React from 'react';
 import greenFlagIcon from './icon--green-flag.svg';
 import styles from './green-flag.css';
 
+const preserveGameFocus = event => {
+    event.preventDefault();
+    event.currentTarget.ownerDocument.activeElement.blur();
+};
+
 const GreenFlagComponent = function (props) {
     const {
         active,
@@ -14,7 +19,8 @@ const GreenFlagComponent = function (props) {
         ...componentProps
     } = props;
     return (
-        <img
+        <button
+            aria-label={title}
             className={classNames(
                 className,
                 styles.greenFlag,
@@ -22,14 +28,21 @@ const GreenFlagComponent = function (props) {
                     [styles.isActive]: active
                 }
             )}
-            draggable={false}
-            src={greenFlagIcon}
+            type="button"
             title={title}
             onClick={onClick}
             // tw: also fire click when opening context menu (right click on all systems and alt+click on chromebooks)
             onContextMenu={onClick}
+            // Keep mouse activation from taking focus away from the game's keyboard controls.
+            onMouseDown={preserveGameFocus}
             {...componentProps}
-        />
+        >
+            <img
+                alt=""
+                draggable={false}
+                src={greenFlagIcon}
+            />
+        </button>
     );
 };
 GreenFlagComponent.propTypes = {

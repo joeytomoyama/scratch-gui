@@ -22,6 +22,9 @@ const messages = defineMessages({
     }
 });
 
+// The surrounding library card also handles Enter. Previewing must not import the sound.
+const stopKeyboardPropagation = event => event.stopPropagation();
+
 const PlayButtonComponent = ({
     className,
     intl,
@@ -38,24 +41,27 @@ const PlayButtonComponent = ({
         intl.formatMessage(messages.play);
 
     return (
-        <div
+        <button
             aria-label={label}
             className={classNames(styles.playButton, className, {
                 [styles.playing]: isPlaying
             })}
             onClick={onClick}
+            onKeyPress={stopKeyboardPropagation}
             onMouseDown={onMouseDown}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
             ref={setButtonRef}
+            type="button"
             {...props}
         >
             <img
+                alt=""
                 className={styles.playIcon}
                 draggable={false}
                 src={isPlaying ? stopIcon : playIcon}
             />
-        </div>
+        </button>
     );
 };
 

@@ -9,8 +9,8 @@ export const captureProject = vm => {
 
 export class ProjectPersistence {
     constructor ({vm, adapter, id, courseId, revision = 0, onState = () => {}, onSaved = () => {},
-        save = saveProjectToServer, delay = 20000}) {
-        Object.assign(this, {vm, adapter, id, courseId, revision, onState, onSaved, save, delay});
+        save = saveProjectToServer, delay = 20000, getTitle = () => null}) {
+        Object.assign(this, {vm, adapter, id, courseId, revision, onState, onSaved, save, delay, getTitle});
         this.generation = 0; this.committed = 0; this.saving = null;
         this.dirtySince = null; this.timer = null; this.job = null; this.flight = null; this.disposed = false;
         this.changed = () => this.edit();
@@ -52,8 +52,10 @@ export class ProjectPersistence {
         clearTimeout(this.timer); this.timer = null;
         if (!this.job) {
             let captured;
+            let title;
             try {
                 captured = captureProject(this.vm);
+                title = this.getTitle();
             } catch (error) {
                 this.emit('Save failed — Retry'); throw error;
             }
@@ -63,6 +65,7 @@ export class ProjectPersistence {
                     project: captured.project,
                     assets: captured.assets,
                     summary: [],
+                    ...(typeof title === 'string' ? {title} : {}),
                     ...(this.courseId ? {courseId: this.courseId} : {})}};
         }
         const job = this.job;

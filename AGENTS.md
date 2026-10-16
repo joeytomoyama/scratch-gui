@@ -154,3 +154,86 @@ Desktop web first; tablet-friendly editing next. Keep the current browser-based 
 ## 11. Guiding decision
 
 **We are building a classroom/business product on top of a proven block-based game editor, not building a new block-based game editor for its own sake.** Optimize for structured courses ending in playable student-built games, reliable human/AI teaching workflows, a replaceable/separate services layer, GPL compliance, a low-maintenance upstream fork and speed to a working commercial MVP.
+
+## 12. Current implementation guardrails and fresh-chat entry point
+
+Read `DECISIONS.md` before continuing prior work. It is the single shared decision
+log for this frontend and sibling `../scratch-backend`; later decisions supersede
+historical ones. The roadmap above is not a claim that classrooms, billing or
+automatic milestone verification already exist. Inspect code for current status.
+
+- Saving and tutoring are independent: full lossless VM JSON/assets for restoration;
+  bounded `tutorProjection` only on intentional Ask, never automatic model calls
+  after edits. Preserve real workspace IDs in Ask snapshots.
+- Courses come from backend reads, not hardcoded cards. Keep starter loading,
+  Continue from an account-owned save, manual completion, course identity and
+  student-instance titles separate from shared course metadata. The primary demo
+  may reach the browser for playback; this is not a secrecy guarantee. Alternatives
+  stay private. No course admin UI or automatic project edits/grading.
+- Keep the unified Ask Tutor chat, optional questions, auto-scroll and collapsible
+  `{request, response}` JSON inspector. Debug provider input is local/transient,
+  not permission to persist or expose student context in production.
+- Highlight `add` categories immediately; exact blocks after eight seconds with
+  a one-second fade. `remove` is red and `inspect` orange; neither highlights a
+  palette category. Validate catalog/availability and exact student sprite/ID/opcode;
+  invalidate hints on relevant edits/deletion. Never guess IDs or edit the project.
+- Settings language is authoritative: en/de/es/ja/fr/it/nl, not Chinese for now.
+  DeepSeek provides guidance; backend Deepgram handles hold-to-talk STT and TTS
+  for both spoken and typed questions. Audio failures must not lose text or cause
+  another model call. Quiet mode is deferred. Keep credentials server-side.
+- Keep bounded session history (40 meaningful changes, four completed exchanges)
+  in memory, capture it only with Ask and reset on project/account changes/reload.
+  Preserve captured input and language on retries; do not add durable chat memory.
+- Static opcode SVG previews and their generator were explicitly undone. Markdown
+  block-image replies are a proposal, not the current contract. Do not recreate
+  these assets or relax plain-text validation without a new implementation request.
+- Reuse existing components and scoped/theme-aware CSS. shadcn is an option, not
+  an approved wholesale migration. Remove only confirmed-unused code; ask about
+  uncertain removals. Preserve unrelated dirty-worktree changes and assets.
+
+Useful entry points: `src/components/tutor/`, `src/lib/tutor/`,
+`src/components/courses/`, `src/lib/project-persistence.js`, and
+`docs/BACKEND_API.md`. Local development typically uses frontend port 8601 and
+backend port 3001; verify running processes/configuration before starting servers.
+Run targeted tests and `npm run test:unit -- --runInBand`, with lint/build as
+appropriate. `test:unit:legacy` is distinct from the configured current suite.
+Do not describe a green subset as all tests passing or production readiness.
+
+## 13. Deferred TODO — mobile game input blocks
+
+Recorded from the mobile-controls discussion. Planning only: do not install
+dependencies or implement this without a new request.
+
+- [ ] Prototype four-direction swipe event hats through an approved, bundled
+  Mobile Controls extension, e.g. `when swiped [left/right/up/down]`. Detect a
+  gesture on the game canvas and trigger matching scripts through the VM's
+  existing event/hat machinery. Do not simulate key presses or rewrite movement
+  blocks; these are extension hats, not ordinary My Blocks procedures.
+- [ ] Evaluate/prototype **@use-gesture/vanilla** first: its direct DOM/canvas
+  integration suits the current class-based Stage. **react-swipeable** is a
+  simpler alternative compatible with the inspected React 16.14. Library choice
+  is provisional, not installed or device-validated. Recheck versions/maintenance
+  before adoption. Tune distance, velocity, duration and directional thresholds;
+  guarantee at most one game event per recognized swipe and ignore cancellations.
+- [ ] Resolve interaction with existing Stage touch-to-mouse and sprite-drag
+  handlers. Avoid accidental clicks/drags, duplicate events and stale listeners;
+  prevent page scrolling only on the active game surface. Preserve normal editor
+  interactions and clean up input on unmount, project changes and lost focus.
+- [ ] Follow with a numeric `phone tilt left/right` reporter using browser
+  device-orientation input, not a binary event or raw sensor stream sent to the
+  backend. Handle HTTPS/permission requirements, neutral-position calibration,
+  screen rotation, smoothing and a dead zone. A normalized -100..100 range was
+  suggested, not finalized. Provide desktop testing and touch/keyboard fallback.
+- [ ] Register approved blocks with extension policy, project load/save and the
+  frontend/backend tutor catalog, projection and highlight validation. Do not
+  reopen arbitrary external/unsandboxed extension loading for this feature.
+- [ ] Test rapid repeated swipes, diagonals, taps, multiple fingers, cancellation,
+  scrolling conflicts and project/fullscreen lifecycle. Test tilt denial/missing
+  sensors/calibration. Require hands-on iPhone Safari and Android Chrome checks;
+  simulated input tests cannot establish real-device polish.
+
+Context: courses may use 480x360 landscape or 360x640 (9:16) portrait stages,
+with course-specific dimensions and removal of arbitrary Advanced size controls
+discussed separately. Mobile game playback/input does not imply the full block
+editor is usable on phones. Neither the two-format course policy nor these input
+blocks should be described as implemented solely because they are listed here.

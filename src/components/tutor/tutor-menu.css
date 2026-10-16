@@ -1,12 +1,262 @@
-.root { margin-left: .5rem; }
-.root button { cursor: pointer; padding: .45rem .65rem; border-radius: 6px; border: 1px solid #aab5c4; }
-.panel { position: fixed; right: 12px; top: 52px; z-index: 9999; width: 370px; max-width: calc(100vw - 24px); max-height: calc(100vh - 70px); overflow: auto; background: white; color: #17212e; padding: 18px; border: 1px solid #aab5c4; border-radius: 12px; box-sizing: border-box; box-shadow: 0 8px 30px #0003; font-size: 14px; font-weight: normal; }
-.panel p { line-height: 1.4; }
-.panel label { display: block; margin: 12px 0; }
-.panel textarea { display: block; width: 100%; min-height: 90px; box-sizing: border-box; }
-.panel button { margin: 4px; }
-.panel button:disabled { cursor: default; opacity: .5; }
-.panel audio { width: 100%; }
-.reply { position: fixed; right: 12px; bottom: 12px; z-index: 9998; width: 370px; max-width: calc(100vw - 24px); max-height: 40vh; overflow: auto; padding: 14px; box-sizing: border-box; border: 1px solid #aaa; background: #fff; color: #000; font: 14px/1.5 system-ui, sans-serif; white-space: pre-wrap; overflow-wrap: anywhere; user-select: text; }
-.reply button { display: block; margin-bottom: 8px; color: #000; background: #fff; }
-.json { white-space: normal; text-align: left; font: 12px/1.5 monospace; }
+@import "../../css/colors.css";
+
+.root {
+    margin-inline-start: .5rem;
+}
+
+.panel {
+    position: fixed;
+    inset-inline-end: 12px;
+    bottom: 12px;
+    z-index: 9999;
+    width: 400px;
+    max-width: calc(100vw - 24px);
+    height: min(560px, calc(100vh - 76px));
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    background: $ui-modal-background;
+    color: $text-primary;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px $shadow;
+    font: 14px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif;
+    text-align: start;
+    user-select: text;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid $ui-black-transparent;
+}
+
+.header > strong {
+    font-size: 17px;
+}
+
+.header-actions,
+.composer-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.action-button {
+    background: $ui-white;
+    color: $text-primary;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font: inherit;
+    cursor: pointer;
+}
+
+.header-actions .close-button {
+    background: $motion-tertiary;
+    color: $menu-bar-foreground;
+}
+
+.panel button:focus-visible,
+.question textarea:focus-visible,
+.debug-selector select:focus-visible {
+    outline: 2px solid $text-primary;
+    outline-offset: 2px;
+}
+
+.panel button:disabled {
+    cursor: default;
+    opacity: .5;
+}
+
+.conversation,
+.debug {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 16px;
+    overflow-wrap: anywhere;
+}
+
+.conversation[hidden] {
+    display: none;
+}
+
+.exchange {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.exchange:last-child {
+    margin-bottom: 0;
+}
+
+.message {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid $ui-black-transparent;
+    white-space: pre-wrap;
+}
+
+.message strong {
+    font-size: 12px;
+}
+
+.message p {
+    margin: 4px 0 0;
+}
+
+.student {
+    align-self: flex-end;
+    margin-inline-start: 28px;
+    background: $ui-tertiary;
+}
+
+.tutor {
+    align-self: flex-start;
+    margin-inline-end: 28px;
+    background: $ui-white;
+}
+
+.empty {
+    margin: 0;
+}
+
+.composer {
+    padding: 12px 16px;
+    border-top: 1px solid $ui-black-transparent;
+}
+
+.composer > p {
+    margin: 0 0 8px;
+}
+
+.question {
+    display: block;
+    font-size: 12px;
+}
+
+.question textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 64px;
+    max-height: 120px;
+    resize: vertical;
+    padding: 8px 10px;
+    margin-top: 4px;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 6px;
+    background: $input-background;
+    color: $text-primary;
+    font: 14px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.composer-actions {
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.audio {
+    display: block;
+    width: 100%;
+    max-width: 280px;
+    height: 40px;
+    margin-top: 8px;
+}
+
+.composer .voice-notice {
+    font-size: 11px;
+    margin: 6px 0 0;
+}
+
+.microphone {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    touch-action: none;
+    user-select: none;
+}
+
+.microphone img {
+    width: 18px;
+    height: 18px;
+}
+
+.microphone[aria-pressed="true"] {
+    border: 2px solid $error-primary;
+}
+
+.composer .send-button {
+    padding: 8px 16px;
+    background: $motion-tertiary;
+    color: $menu-bar-foreground;
+    border-radius: 6px;
+}
+
+.debug-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 12px;
+}
+
+.debug-selector select {
+    width: 100%;
+    min-width: 0;
+    padding: 6px;
+    background: $input-background;
+    color: $text-primary;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 6px;
+    font: inherit;
+}
+
+/* Keep the existing developer JSON viewer's black-on-white presentation. */
+.json {
+    color-scheme: light;
+    background: #fff;
+    color: #000;
+    padding: 8px;
+    border-radius: 6px;
+    white-space: normal;
+    text-align: left;
+    font: 12px/1.5 monospace;
+}
+
+/* Read-only inline guidance uses the existing renderer's global block styles. */
+.block-preview {
+    display: inline-block;
+    max-width: 100%;
+    vertical-align: middle;
+    pointer-events: none;
+    white-space: normal;
+}
+
+.block-preview svg {
+    display: block;
+    position: static;
+    max-width: 100%;
+    height: auto;
+    background: transparent;
+}
+
+.value-chip {
+    display: inline-block;
+    max-width: 100%;
+    box-sizing: border-box;
+    vertical-align: baseline;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 999px;
+    padding: 0 8px;
+    background: $ui-tertiary;
+    color: $text-primary;
+    overflow-wrap: anywhere;
+}

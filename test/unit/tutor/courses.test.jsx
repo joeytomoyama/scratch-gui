@@ -6,7 +6,8 @@ import Courses from '../../../src/components/courses/courses.jsx';
 import {createCourseAPI, selectCourses, courseContext, editorCourseURL} from '../../../src/lib/course-api';
 import {getAccountService} from '../../../src/lib/account/service';
 
-jest.mock('../../../src/components/account/account-menu.jsx', () => () => <span>Account</span>);
+jest.mock('../../../src/components/courses/courses-header.jsx', () => () => <header>Courses header</header>);
+jest.mock('../../../src/components/courses/courses.css', () => ({control: 'course-control', completionButton: 'course-completion'}));
 jest.mock('../../../src/lib/account/service', () => ({getAccountService: jest.fn()}));
 jest.mock('../../../src/lib/course-api', () => ({...jest.requireActual('../../../src/lib/course-api'), createCourseAPI: jest.fn()}));
 
@@ -24,6 +25,9 @@ test('backend cards support search, completion and course details with separate 
     act(() => {wrapper = mount(<Courses />);});
     await settle(wrapper);
     expect(wrapper.text()).toContain('Build a game');
+    expect(wrapper.find('input').prop('className')).toBe('course-control');
+    expect(wrapper.find('select').prop('className')).toBe('course-control');
+    expect(wrapper.find('button').prop('className')).toBe('course-completion');
     expect(wrapper.find('iframe')).toHaveLength(0);
     act(() => {wrapper.find('input').simulate('change', {target: {value: 'absent'}});});
     expect(wrapper.text()).toContain('No courses found');
@@ -36,6 +40,7 @@ test('backend cards support search, completion and course details with separate 
     act(() => {window.location.hash = '#example'; window.dispatchEvent(new Event('hashchange'));});
     wrapper.update();
     expect(wrapper.text()).toContain('What you’ll learn');
+    expect(wrapper.find('button').prop('className')).toBe('course-completion');
     expect(wrapper.find('iframe').prop('src')).toBe('course-player.html?course=example');
     expect(wrapper.find('a[href="editor.html?course=example"]')).toHaveLength(1);
     act(() => {wrapper.unmount();});

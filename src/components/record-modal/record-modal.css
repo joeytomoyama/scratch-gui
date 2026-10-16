@@ -75,6 +75,12 @@
     outline: none;
 }
 
+.main-button-row button:focus-visible,
+.button-row button:focus-visible {
+    outline: 2px solid $text-primary;
+    outline-offset: 2px;
+}
+
 .button-row {
     font-weight: bolder;
     text-align: right;

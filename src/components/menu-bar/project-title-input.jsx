@@ -16,6 +16,11 @@ const messages = defineMessages({
         id: 'gui.gui.projectTitlePlaceholder',
         description: 'Placeholder for project title when blank',
         defaultMessage: 'Project title here'
+    },
+    projectTitleLabel: {
+        id: 'classroom.projectTitleLabel',
+        description: 'Label for the student project name, which does not rename the shared course',
+        defaultMessage: 'Project name'
     }
 });
 
@@ -26,6 +31,7 @@ const ProjectTitleInput = ({
     projectTitle
 }) => (
     <BufferedInput
+        aria-label={intl.formatMessage(messages.projectTitleLabel)}
         className={classNames(styles.titleField, className)}
         maxLength="100"
         placeholder={intl.formatMessage(messages.projectTitlePlaceholder)}

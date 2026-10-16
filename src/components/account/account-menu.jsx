@@ -259,7 +259,7 @@ class AccountMenu extends React.Component {
                                         >Sign out all devices</button>
                                     </div>
                                 )}
-                                <p className={styles.note}>Your project stays in this browser. Signing in does not save it online yet.</p>
+                                <p className={styles.note}>Check the editor’s save status before leaving. You can also save a copy to your computer.</p>
                             </React.Fragment>
                         )}
                     </section>

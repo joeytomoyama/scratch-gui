@@ -5,6 +5,7 @@ import bindAll from 'lodash.bindall';
 import {connect} from 'react-redux';
 
 import {setProjectUnchanged} from '../reducers/project-changed';
+import {setProjectTitle} from '../reducers/project-title';
 import {
     LoadingStates,
     getIsCreatingNew,
@@ -104,12 +105,26 @@ const ProjectFetcherHOC = function (WrappedComponent) {
                     try {
                         const saved = courseLoad ? {data: await adapter.project(this.props.courseId, this.props.courseDemo)} :
                             await adapter.load(projectId);
+                        let title = saved.title;
+                        if (typeof title !== 'string' && this.props.courseId) {
+                            const titleAdapter = courseLoad ? adapter : createCourseAPI(user.id);
+                            try {
+                                title = (await titleAdapter.details(this.props.courseId)).title.slice(0, 100);
+                            } catch (error) {
+                                // Legacy saves should still open if their course metadata is unavailable.
+                                if (courseLoad) throw error;
+                            } finally {
+                                if (titleAdapter !== adapter) titleAdapter.dispose();
+                            }
+                        }
                         if (this.privateAdapter !== adapter || this.props.reduxProjectId !== projectId || account.getState().user?.id !== user.id) {
                             return;
                         }
                         this.stopWaiting?.(); this.stopWaiting = null;
+                        if (typeof title === 'string') this.props.onProjectTitleFetched(title);
                         if (courseLoad) {
                             this.courseLoaded = true;
+                            this.courseTitle = title;
                             this.props.onFetchedProjectData(saved.data, loadingState);
                         } else this.props.onPrivateFetched(projectId, saved.data, saved.revision, user.id);
                     } catch (error) {
@@ -170,6 +185,7 @@ const ProjectFetcherHOC = function (WrappedComponent) {
                 onFetchedProjectData: onFetchedProjectDataProp,
                 onProjectUnchanged,
                 onPrivateFetched,
+                onProjectTitleFetched,
                 projectHost,
                 projectId,
                 reduxProjectId,
@@ -182,6 +198,7 @@ const ProjectFetcherHOC = function (WrappedComponent) {
                 <WrappedComponent
                     fetchingProject={isFetchingWithIdProp}
                     {...componentProps}
+                    courseTitle={this.courseTitle}
                 />
             );
         }
@@ -191,6 +208,7 @@ const ProjectFetcherHOC = function (WrappedComponent) {
         courseDemo: PropTypes.bool,
         createProjectAdapter: PropTypes.func,
         onPrivateFetched: PropTypes.func,
+        onProjectTitleFetched: PropTypes.func,
         assetHost: PropTypes.string,
         canSave: PropTypes.bool,
         intl: intlShape.isRequired,
@@ -226,6 +244,7 @@ const ProjectFetcherHOC = function (WrappedComponent) {
     });
     const mapDispatchToProps = dispatch => ({
         onPrivateFetched: (id, data, revision, owner) => dispatch(privateProjectFetched(id, data, revision, owner)),
+        onProjectTitleFetched: title => dispatch(setProjectTitle(title)),
         onActivateTab: tab => dispatch(activateTab(tab)),
         onError: error => dispatch(projectError(error)),
         onFetchedProjectData: (projectData, loadingState) =>

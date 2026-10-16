@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import AccountMenu from '../account/account-menu.jsx';
+import CoursesHeader from './courses-header.jsx';
 import {getAccountService} from '../../lib/account/service';
 import {createCourseAPI, selectCourses, editorCourseURL} from '../../lib/course-api';
 import styles from './courses.css';
@@ -86,11 +86,7 @@ export default function Courses () {
     const course = courses.find(c => c.id === selected);
     return (
         <div className={styles.page}>
-            <header className={styles.header}>
-                <a href="courses.html">Courses</a>
-                <a href="editor.html">Editor</a>
-                <div className={styles.account}><AccountMenu /></div>
-            </header>
+            <CoursesHeader />
             <main className={styles.content}>
                 <h1>{selected && course ? course.title : 'Courses'}</h1>
                 {account.loading ? <p>Restoring your session…</p> : !account.user ? <p>Sign in to explore courses.</p> : null}
@@ -115,6 +111,7 @@ export default function Courses () {
                                 href={editorCourseURL(course.id)}
                             >{course.resumeProjectId ? 'Start again' : 'Start course'}</a>
                             <button
+                                className={styles.completionButton}
                                 disabled={pending === course.id}
                                 onClick={() => complete(course)}
                             >
@@ -136,11 +133,13 @@ export default function Courses () {
                     <React.Fragment>
                         <div className={styles.filters}>
                             <label>Search courses <input
+                                className={styles.control}
                                 type="search"
                                 value={search}
                                 onChange={e => setSearch(e.target.value)}
                             /></label>
                             <label>Sort by <select
+                                className={styles.control}
                                 value={sort}
                                 onChange={e => setSort(e.target.value)}
                             >
@@ -171,6 +170,7 @@ export default function Courses () {
                                             href={`#${encodeURIComponent(c.id)}`}
                                         >{c.resumeProjectId ? 'Course details' : 'Start course'}</a>
                                         <button
+                                            className={styles.completionButton}
                                             disabled={pending === c.id}
                                             onClick={() => complete(c)}
                                         >

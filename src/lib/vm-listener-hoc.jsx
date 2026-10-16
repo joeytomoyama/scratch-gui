@@ -206,10 +206,8 @@ const vmListenerHOC = function (WrappedComponent) {
                 isDown: false
             });
 
-            // E.g., prevent scroll.
-            if (e.target !== document && e.target !== document.body) {
-                e.preventDefault();
-            }
+            // Leave browser defaults intact: native buttons activate on Space keyup.
+            // Game scrolling is already prevented in handleKeyDown.
         }
         render () {
             const {

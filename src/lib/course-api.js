@@ -20,6 +20,7 @@ export const createCourseAPI = (userId, options = {}) => {
     const root = id => `/v1/courses/${encodeURIComponent(id)}`;
     return {
         list: () => api.request('/v1/courses'),
+        details: id => api.request(root(id)),
         project: (id, demo = false) => api.request(`${root(id)}/${demo ? 'demo' : 'starter'}`,
             {binary: true, maxBytes: 50 * 1024 * 1024, timeout: 60000}),
         thumbnail: id => api.request(`${root(id)}/thumbnail`, {binary: true, maxBytes: 2 * 1024 * 1024}),

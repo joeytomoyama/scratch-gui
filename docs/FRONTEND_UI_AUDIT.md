@@ -8,6 +8,51 @@ The main problem is not CSS Modules or React class components. It is that the ne
 
 Prioritize legibility, component boundaries, keyboard access, and consistent tokens before a visual redesign. Preserve the working block editor, stage, paint/audio integrations, block category colors, and high-contrast support.
 
+## First implementation batch — 2026-10-05
+
+The findings below remain an audit snapshot; this follow-up fixes the initial legibility and style-boundary issues:
+
+- Ask AI and Save now share a CSS Module toolbar-button style with explicit theme foreground/background pairs, hover/active states, native disabled behavior, and visible keyboard focus. Their click/request/save behavior is unchanged.
+- Courses uses explicit classes for its search, sort, and completion controls instead of styling every descendant input/select/button. Nested Account controls keep their own appearance.
+- Course headers and filled actions use the existing darker accent shade (`motion-tertiary`) for readable white text. Scratch block colors are unchanged. A dedicated classroom action-token system is still a future improvement.
+- Both transparent text-token aliases now match the property names emitted by the theme helper. Account's obsolete local-only-save note now directs students to the actual save status and local download option.
+
+Verification: added compiled-CSS checks for light/dark control contrast, all four course accent colors, Account style isolation, keyboard focus declarations, and theme aliases; added toolbar behavior tests and course control-class assertions. The configured unit suite passes (157 tests, 24 suites), the webpack build passes, and lint passes for the changed application JSX. Browser checks confirm readable toolbar colors, Enter operation and focus styling for Ask AI, course colors, and Account's blue Save profile button. Space did not toggle the tutor trigger in the editor browser check; investigate editor-level keyboard handling in the next accessibility batch. No project saves, completion changes, paid tutor requests, or saved preference changes were made during browser checks. Dark-theme contrast is unit-tested, not a browser screenshot verification.
+
+The keyboard-accessibility follow-up is recorded below. Broader Account/tutor dark-theme styling, responsive work, and component/token consolidation remain open.
+
+### Header feedback follow-up — 2026-10-05
+
+Courses now sits with Settings/File/Edit/Advanced. The existing buffered title field remains editable, defaults to the loaded course name, and persists the student's private name with their project revision. Old course saves fall back to the course name; shared course metadata is never renamed. New course starters retain their fetched title through the upstream default-project title reset.
+
+Save displays its status inside the button. During saving it is natively disabled and shows a small spinner; reduced-motion preferences suppress rotation. Failure restores Retry Save. The duplicate toolbar download action is removed, while File's existing local export actions remain intact. Header title sizing allows longer course names and shrinks without pushing the save controls off the desktop header.
+
+Verification: 165 configured frontend unit tests and 39 backend tests pass, including title-only autosave, default/starter title lifecycle, legacy loads, private-title isolation, durable SQLite title restoration, immutable retries, and native busy-button behavior. Webpack build and lint of changed application JSX/JS pass. In a separate browser tab, an existing course save displays the course-name fallback, left-side Courses link, and Saved inside the button; File's Save as action is still visible. No student project edits or saves were initiated by these browser checks. The local backend was restarted to serve the new optional title field; temporary debug-log history resets on restart, durable project data does not.
+
+### Keyboard accessibility follow-up — 2026-10-06
+
+Shared action, sound-action, close/back, delete, green-flag, stop, and sound-library preview controls now use native `button` elements with `type="button"`. Decorative icons have empty alternative text. Existing click callbacks, disabled states, delete tab-order overrides, green-flag modifiers/right-click behavior, and preview mouse/touch behavior are preserved. Pointer activation of Go/Stop releases input/button focus so game keys remain usable; keyboard activation keeps visible button focus.
+
+The VM listener no longer cancels UI key-release defaults, which was preventing Space from activating Ask AI. It still releases game keys after focus changes, prevents body Space/arrow scrolling, and protects workspace blocks from game-used Delete/Backspace. Sound preview handles keyboard clicks separately from mouse-down/touch playback and stops Enter from selecting/importing the enclosing library card.
+
+Explicit theme-aware focus rings cover these shared controls, selected editor tabs, Add Extension, sound playback/round controls, and recording-dialog buttons. Stop's inactive opacity no longer dims its keyboard focus ring. CSS resets retain inherited sizing and appearance; no block editing, tutor payload/highlighting, project-save, or audio-processing logic was changed.
+
+Verification: 207 configured unit tests pass (42 additional regressions), plus four existing shared-control tests and two updated snapshots. Webpack build and lint of changed application files pass. Full-repository lint still fails on three untouched upstream files: unused `label` PropType in `components/monitor/monitor.jsx`, mount-time setState in `containers/sound-library.jsx`, and switch fallthrough in `lib/file-uploader.js`.
+
+An isolated browser tab confirms Space opens Ask AI, Enter/Space close the tutor panel and operate the extension dialog's Back button, arrow navigation visibly focuses selected tabs, and Go/Stop support Space with their original 32px dimensions. No student saves, completion changes, paid tutor requests, or persisted preference changes were initiated. Sound-library browser verification is limited by the in-app browser's missing `AudioContext.createGain`; playback, parent-card isolation, and mouse/touch duplication are covered by unit tests, not a successful real-audio browser check. Screen-reader/cross-browser certification and the legacy Sauce/integration suites are not claimed.
+
+Next priority: consolidate classroom action variants/dialog actions and semantic panel/status styles. Full keyboard navigation of inherited menus and the block/paint editors remains a separate scope.
+
+### Unified tutor chat follow-up — 2026-10-06
+
+Ask AI Tutor is now Ask Tutor. The old question panel and independent JSON reply box are merged into one corner chat panel. Ordered student questions and plain-text tutor replies are kept in memory for the current project/account session, with automatic conversation scrolling, close/reopen preservation, and explicit waiting/error/retry feedback. Enter sends; Shift+Enter and IME composition do not. Questions remain optional, and students can draft while waiting without sending duplicate requests. Opening focuses the composer; Escape/Close restore focus to the toolbar trigger.
+
+The small JSON/Chat toggle retains the collapsible `{request, response}` viewer. A selector allows inspecting earlier exchanges without applying their old highlights. Cached retries retain already-received debug data in this session but update the same exchange. Project/account changes clear chat/debug data and stale in-flight replies are ignored. No chat/transcripts are persisted or added to API calls; backend code/contracts, tutor projections, highlighting timing, and voice support are unchanged. The requested explanatory privacy paragraph is removed from this panel.
+
+The frontend-design skill guided a restrained, course-editor-specific layout: conversation space above a fixed composer, compact named messages, existing type/theme tokens, and no new library or decorative chrome. Shared action/close controls are reused. JSON intentionally retains its existing black-on-white debugging presentation.
+
+Verification: all 221 configured frontend unit tests, the webpack build, and lint of the changed tutor component pass. Tests cover ordered history, close/reopen behavior, native Send submission, optional questions and private project IDs, text escaping, JSON expansion/selection, highlight dispatch, pending/draft behavior, idempotent retries, cached debug input, session reset/stale replies, focus/keyboard input, scrolling, and light/dark control contrast. Backend files were not changed for this follow-up. Browser verification confirms the renamed trigger, Chat/JSON switching, composer focus, Escape focus restoration, and Shift+Enter in a separate editor tab; no paid AI request or student save was initiated.
+
 ## Skills installed and used
 
 Project-local installation under `.agents/skills`; existing skills were left intact:

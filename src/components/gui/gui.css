@@ -175,6 +175,12 @@
     display: none;
 }
 
+.tab:focus-visible,
+.tab.is-selected:focus-visible {
+    outline: 2px solid $text-primary;
+    outline-offset: -3px;
+}
+
 /* Body of the tabs */
 .tabs {
     position: relative;
@@ -273,6 +279,11 @@ $fade-out-distance: 15px;
 .extension-button-icon {
     width: 1.75rem;
     height: 1.75rem;
+}
+
+.extension-button:focus-visible {
+    outline: 2px solid $menu-bar-foreground;
+    outline-offset: -4px;
 }
 
 [dir="rtl"] .extension-button-icon {

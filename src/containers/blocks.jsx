@@ -1,3 +1,4 @@
+import {registerTutorPreviews} from '../lib/tutor/previews';
 import bindAll from 'lodash.bindall';
 import debounce from 'lodash.debounce';
 import defaultsDeep from 'lodash.defaultsdeep';
@@ -43,6 +44,7 @@ import {findTopBlock} from '../lib/backpack/code-payload.js';
 import {gentlyRequestPersistentStorage} from '../lib/tw-persistent-storage.js';
 import {TutorHighlights} from '../lib/tutor/highlights';
 import PaletteCategoryBackgrounds from '../lib/palette-category-backgrounds';
+import ResponsiveBlockPalette from '../lib/responsive-block-palette';
 
 // TW: Strings we add to scratch-blocks are localized here
 const messages = defineMessages({
@@ -163,6 +165,12 @@ class Blocks extends React.Component {
         );
         this.workspace = this.ScratchBlocks.inject(this.blocks, workspaceConfig);
         this.paletteBackgrounds = new PaletteCategoryBackgrounds(this.workspace);
+        this.responsivePalette = new ResponsiveBlockPalette(this.workspace, this.blocks);
+        this.unregisterTutorPreviews = registerTutorPreviews(this.props.vm, {
+            ScratchBlocks: this.ScratchBlocks,
+            workspace: this.workspace,
+            getToolboxXML: () => this.props.toolboxXML
+        });
         this.tutorHighlights = new TutorHighlights({
             vm: this.props.vm,
             workspace: this.workspace,
@@ -292,7 +300,9 @@ class Blocks extends React.Component {
         this.detachVM();
         this.unmounted = true;
         this.tutorHighlights.dispose();
+        this.unregisterTutorPreviews();
         this.paletteBackgrounds.dispose();
+        this.responsivePalette.dispose();
         this.workspace.dispose();
         clearTimeout(this.toolboxUpdateTimeout);
 

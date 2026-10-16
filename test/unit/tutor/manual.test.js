@@ -35,6 +35,21 @@ test('Ask preserves real VM IDs, captures editor availability and invalidates pe
         // Resolve the same request receipt without recapturing project state or availability.
         const retry = tutor.retry(); finish(); await retry;
         expect(api.ask.mock.calls[1][0]).toEqual(api.ask.mock.calls[0][0]);
+        let transcribed;
+        api.transcribe = jest.fn(() => new Promise(resolve => {transcribed = resolve;}));
+        const voice = tutor.transcribe({type: 'audio/webm'}, {course: 'road'}, null);
+        expect(tutor.pending.recentChanges).toEqual([expect.objectContaining({
+            sprite: 'Stage', id: 'actual-wait', opcode: 'control_wait', action: 'modified'
+        })]);
+        expect(tutor.pending.recentConversation).toEqual([{question: '', reply: 'Inspect the wait.'}]);
+        expect(tutor.snapshot.matches(target, 'actual-wait')).toBe(true);
+        expect(tutor.pending.context.text).toContain('[actual-wait]');
+        vm.blockListener({type: 'change', blockId: 'actual-number', element: 'field', name: 'NUM', newValue: '3'});
+        expect(tutor.snapshot.matches(target, 'actual-wait')).toBe(false);
+        transcribed({question: 'Was macht der Block?', language: 'de'}); await voice;
+        const spokenReply = tutor.retry(); finish(); await spokenReply;
+        expect(api.ask.mock.calls[2][0]).toMatchObject({question: 'Was macht der Block?', language: 'de', course: {course: 'road'}});
+        expect(tutor.snapshot.matches(target, 'actual-wait')).toBe(false);
     } finally {
         tutor?.dispose(); unregister?.(); vm.quit();
     }

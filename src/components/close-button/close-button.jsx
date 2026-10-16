@@ -10,8 +10,8 @@ import backIcon from '../../lib/assets/icon--back.svg';
 let closeIcons = {};
 
 const CloseButton = props => (
-    <div
-        aria-label="Close"
+    <button
+        aria-label={props.buttonType === 'back' ? 'Back' : 'Close'}
         className={classNames(
             styles.closeButton,
             props.className,
@@ -21,17 +21,18 @@ const CloseButton = props => (
                 [styles.orange]: props.color === CloseButton.COLOR_ORANGE
             }
         )}
-        role="button"
-        tabIndex="0"
+        type="button"
         onClick={props.onClick}
     >
         {props.buttonType === 'back' ?
             <img
+                alt=""
                 className={styles.backIcon}
                 src={backIcon}
                 draggable={false}
             /> :
             <img
+                alt=""
                 className={classNames(
                     styles.closeIcon,
                     {
@@ -45,7 +46,7 @@ const CloseButton = props => (
                 draggable={false}
             />
         }
-    </div>
+    </button>
 );
 
 CloseButton.SIZE_SMALL = 'small';

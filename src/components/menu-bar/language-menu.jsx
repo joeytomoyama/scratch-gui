@@ -11,6 +11,7 @@ import {MenuItem, Submenu} from '../menu/menu.jsx';
 import languageIcon from '../language-selector/language-icon.svg';
 import {languageMenuOpen, openLanguageMenu} from '../../reducers/menus.js';
 import {selectLocale} from '../../reducers/locales.js';
+import {classroomLocales} from '../../lib/classroom-locales';
 
 import styles from './settings-menu.css';
 
@@ -91,7 +92,7 @@ class LanguageMenu extends React.PureComponent {
                     place={this.props.isRtl ? 'left' : 'right'}
                 >
                     {
-                        Object.keys(locales)
+                        classroomLocales
                             .map(locale => (
                                 <MenuItem
                                     key={locale}

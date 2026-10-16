@@ -34,6 +34,7 @@
 }
 
 .main-menu {
+    min-width: 0;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
@@ -75,7 +76,8 @@
 }
 
 .menu-bar-item.growable {
-    max-width: $menu-bar-item-max-width;
+    min-width: 0;
+    max-width: 22rem;
     flex: 1;
 }
 
@@ -85,6 +87,7 @@
 }
 
 .file-group {
+    flex-shrink: 0;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -140,6 +143,9 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    flex-shrink: 0;
+    gap: .5rem;
+    padding-inline-end: .5rem;
 }
 
 .account-info-group .menu-bar-item {
@@ -232,4 +238,9 @@
 .menu-item-link {
     color: inherit;
     text-decoration: none;
+}
+
+.menu-item-link:focus-visible {
+    outline: 3px solid currentColor;
+    outline-offset: -3px;
 }

@@ -5,6 +5,11 @@ import React from 'react';
 import stopAllIcon from './icon--stop-all.svg';
 import styles from './stop-all.css';
 
+const preserveGameFocus = event => {
+    event.preventDefault();
+    event.currentTarget.ownerDocument.activeElement.blur();
+};
+
 const StopAllComponent = function (props) {
     const {
         active,
@@ -14,7 +19,8 @@ const StopAllComponent = function (props) {
         ...componentProps
     } = props;
     return (
-        <img
+        <button
+            aria-label={title}
             className={classNames(
                 className,
                 styles.stopAll,
@@ -22,12 +28,19 @@ const StopAllComponent = function (props) {
                     [styles.isActive]: active
                 }
             )}
-            draggable={false}
-            src={stopAllIcon}
+            type="button"
             title={title}
             onClick={onClick}
+            // Keep mouse activation from taking focus away from the game's keyboard controls.
+            onMouseDown={preserveGameFocus}
             {...componentProps}
-        />
+        >
+            <img
+                alt=""
+                draggable={false}
+                src={stopAllIcon}
+            />
+        </button>
     );
 };
 

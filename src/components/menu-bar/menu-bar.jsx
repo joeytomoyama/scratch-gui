@@ -646,6 +646,16 @@ class MenuBar extends React.Component {
                                 </span>
                             </div>
                         )}
+                        <a
+                            className={classNames(styles.menuBarItem, styles.hoverable, styles.menuItemLink)}
+                            href="courses.html"
+                        >
+                            <FormattedMessage
+                                defaultMessage="Courses"
+                                description="Link to the student course overview"
+                                id="classroom.menuBar.courses"
+                            />
+                        </a>
                     </div>
 
                     <Divider className={styles.divider} />
@@ -671,18 +681,13 @@ class MenuBar extends React.Component {
                 <div className={styles.accountInfoGroup}>
                     <TutorMenu
                         vm={this.props.vm}
+                        locale={this.props.locale}
                         projectId={this.props.projectId}
                         course={this.props.course || courseContext()}
                         ready={Boolean(this.props.isShowingProject || this.props.isUpdating)}
                     />
-                    <a
-                        href="courses.html"
-                        style={{color: 'inherit', marginRight: '12px'}}
-                    >{'Courses'}</a>
                     <AccountMenu />
-                    <TWSaveStatus
-                        showSaveFilePicker={this.props.showSaveFilePicker}
-                    />
+                    <TWSaveStatus />
                 </div>
 
                 {aboutButton}
@@ -724,6 +729,7 @@ MenuBar.propTypes = {
     fileMenuOpen: PropTypes.bool,
     handleSaveProject: PropTypes.func,
     intl: intlShape,
+    locale: PropTypes.string,
     isPlayerOnly: PropTypes.bool,
     isRtl: PropTypes.bool,
     isShowingProject: PropTypes.bool,

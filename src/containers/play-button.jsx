@@ -39,6 +39,15 @@ class PlayButton extends React.Component {
     handleClick (e) {
         //  stop the click from propagating out of the button
         e.stopPropagation();
+        // Native keyboard/assistive-technology clicks have no mouse-down event.
+        // Mouse and touch already toggle playback in their existing handlers.
+        if (e.detail === 0) {
+            if (this.props.isPlaying) {
+                this.props.onStop();
+            } else {
+                this.props.onPlay();
+            }
+        }
     }
     handleMouseDown (e) {
         // prevent default (focus) on mouseDown

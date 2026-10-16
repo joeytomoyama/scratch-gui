@@ -5,6 +5,7 @@ import editorMessages from '@turbowarp/scratch-l10n/locales/editor-msgs';
 import addAdditionalTranslations from '../lib/tw-translations/index.js';
 
 import {LANGUAGE_KEY} from '../lib/detect-locale.js';
+import {classroomLocale} from '../lib/classroom-locales';
 
 addAdditionalTranslations(editorMessages);
 addLocaleData(localeData);
@@ -22,13 +23,15 @@ const initialState = {
 const reducer = function (state, action) {
     if (typeof state === 'undefined') state = initialState;
     switch (action.type) {
-    case SELECT_LOCALE:
+    case SELECT_LOCALE: {
+        const locale = classroomLocale(action.locale);
         return Object.assign({}, state, {
-            isRtl: isRtl(action.locale),
-            locale: action.locale,
+            isRtl: isRtl(locale),
+            locale: locale,
             messagesByLocale: state.messagesByLocale,
-            messages: state.messagesByLocale[action.locale]
+            messages: state.messagesByLocale[locale]
         });
+    }
     case UPDATE_LOCALES:
         return Object.assign({}, state, {
             isRtl: state.isRtl,
@@ -42,6 +45,7 @@ const reducer = function (state, action) {
 };
 
 const selectLocale = function (locale) {
+    locale = classroomLocale(locale);
     // tw: store language in localStorage
     try {
         localStorage.setItem(LANGUAGE_KEY, locale);
@@ -59,6 +63,7 @@ const setLocales = function (localesMessages) {
     };
 };
 const initLocale = function (currentState, locale) {
+    locale = classroomLocale(locale);
     if (Object.prototype.hasOwnProperty.call(currentState.messagesByLocale, locale)) {
         return Object.assign(
             {},

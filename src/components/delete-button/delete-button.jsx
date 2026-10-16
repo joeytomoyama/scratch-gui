@@ -6,24 +6,25 @@ import styles from './delete-button.css';
 import deleteIcon from './icon--delete.svg';
 
 const DeleteButton = props => (
-    <div
+    <button
         aria-label="Delete"
         className={classNames(
             styles.deleteButton,
             props.className
         )}
-        role="button"
+        type="button"
         tabIndex={props.tabIndex}
         onClick={props.onClick}
     >
-        <div className={styles.deleteButtonVisible}>
+        <span className={styles.deleteButtonVisible}>
             <img
+                alt=""
                 className={styles.deleteIcon}
                 src={deleteIcon}
                 draggable={false}
             />
-        </div>
-    </div>
+        </span>
+    </button>
 
 );
 

@@ -34,8 +34,10 @@ export default WrappedComponent => {
             });
             this.reconcile();
         }
-        componentDidUpdate () {
+        componentDidUpdate (prevProps) {
             this.reconcile();
+            if (this.controller && this.props.ready && prevProps.ready && this.props.id === prevProps.id &&
+                this.props.projectTitle !== prevProps.projectTitle) this.controller.edit();
         }
         reconcile () {
             if (!this.mounted || this.props.courseDemo) return;
@@ -61,6 +63,7 @@ export default WrappedComponent => {
             this.controller = new ProjectPersistence({vm: this.props.vm,
                 id,
                 courseId: courseIdFromURL(),
+                getTitle: () => this.props.projectTitle,
                 revision,
                 adapter: (this.props.createProjectAdapter || accountProjectAPI)(this.userId),
                 save: this.props.onUpdateProjectData,
@@ -94,6 +97,7 @@ export default WrappedComponent => {
         revision: PropTypes.number,
         owner: PropTypes.string,
         projectChanged: PropTypes.bool,
+        projectTitle: PropTypes.string,
         onStatus: PropTypes.func,
         onAdopt: PropTypes.func,
         createProjectAdapter: PropTypes.func,
@@ -106,7 +110,8 @@ export default WrappedComponent => {
         id: state.scratchGui.projectState.projectId,
         revision: state.scratchGui.projectState.privateRevision,
         owner: state.scratchGui.projectState.privateOwner,
-        projectChanged: state.scratchGui.projectChanged}), dispatch => ({
+        projectChanged: state.scratchGui.projectChanged,
+        projectTitle: state.scratchGui.projectTitle}), dispatch => ({
         onStatus: value => dispatch(updatePersistence(value)),
         onAdopt: (id, revision, owner) => dispatch(adoptPrivateProject(id, revision, owner))
     }))(ProjectSaver);

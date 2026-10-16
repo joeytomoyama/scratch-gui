@@ -17,7 +17,7 @@ Project IDs are stable UUIDs, independent of temporary AI request UUIDs. First s
 | Method/path | Body | Response |
 | --- | --- | --- |
 | PUT `/v1/projects/{id}/revisions/{revision}` | Full snapshot JSON | 200 `{revision, missingAssets}` |
-| GET `/v1/projects/{id}` | — | 200 `{revision, project, assets}` |
+| GET `/v1/projects/{id}` | — | 200 `{revision, project, assets, title?}` |
 | PUT `/v1/projects/{id}/assets/{fileName}` | Raw octet-stream bytes | 204 |
 | GET `/v1/projects/{id}/assets/{fileName}` | — | 200 octet-stream |
 
@@ -28,6 +28,8 @@ interface Snapshot {
   project: object; // complete parsed VM.toJSON(), never the tutor projection
   assets: AssetReference[]; // all VM.serializeAssets() files
   summary: []; // retained wire field; persistence does not compute AI summaries
+  title?: string; // student-owned project name, up to 100 code units; never renames the shared course
+  courseId?: string; // course association, unchanged by renaming the student's project
 }
 ```
 
@@ -35,11 +37,13 @@ Persist the full project unchanged: blocks and positions, comments and their lay
 
 Submit JSON/manifest first, then upload only the missing files named by the response. The UI reports Saved only after all required uploads finish. GET returns `409 assets_incomplete` until the captured head is restorable. Immutable assets from older revisions remain available throughout downloads and later saves. The adapter validates download lengths and packages the exact JSON and bytes into SB3.
 
+New course starters use the course's title as their editable project name. Resume restores the private revision's title; legacy course saves without a title fall back to course metadata when available. Editing the name alone marks the private project dirty and uses the same 20-second autosave/manual-save flow. The title is captured with the revision, including immutable retries. Shared course titles and other students' names are unaffected. No database migration is required because the optional title is stored alongside the existing revision JSON.
+
 ### Timing and races
 
 - Every `PROJECT_CHANGED` event counts, including workspace layout. UI-only events that do not change the VM do not create saves.
 - The first unsaved edit starts a 20-second timer. Further edits do not postpone it. The latest full state is captured at send time.
-- Header Save captures immediately; saves are serialized. If another save is running, manual Save queues behind it and then captures newer work.
+- Header Save captures immediately; saves are serialized. Its status appears inside the button, which shows a spinner and is disabled while saving. The controller still serializes host-triggered saves and captures newer work after an in-flight save. Local download remains available from File rather than a duplicate toolbar action.
 - Track current edit generation, captured/saving generation and committed generation. Completing an old save commits only its captured generation. Newer edits remain dirty.
 - Failed saves retain their exact UUID, revision, snapshot and asset bytes for retry. Retry completes that immutable job before saving later edits. Failure does not start an idle retry loop.
 - No changes means no persistence requests. Manual Save may create a new untouched project intentionally.
@@ -53,6 +57,35 @@ Assets must match `^[a-fA-F0-9]{32}\\.[a-zA-Z0-9]{1,10}$` and a previously accep
 
 Limits: 10 MiB JSON, depth 64, 2,000 manifest entries, 20 MiB per asset, 100 MiB aggregate referenced assets and 100 MiB retained revision payloads per document, 100 documents per owner. Current rate limit is 120 authenticated requests/minute/owner/process. Responses use `Cache-Control: private, no-store`; protected bytes are not publicly cached. Container checks do not replace complete media decoding or sanitization.
 
+## Voice tutor
+
+The chat supports typed and hold-to-record questions; both get text/highlights and
+spoken audio. English, German, Spanish, Japanese, French, Italian and Dutch are
+supported. Settings → Language selects the expected language; no Chinese.
+
+`POST /v1/tutor/transcriptions/:requestId?language=auto` accepts raw container audio
+(WebM/Opus, Ogg/Opus, MP4, WAV), up to 2 MiB / 60 seconds, returning
+`{question: string, language: 'en'|'de'|'es'|'ja'|'fr'|'it'|'nl'}`. Silence returns
+422, never a blank tutor question. An explicit language code replaces `auto`.
+
+`POST /v1/tutor/requests/:requestId/audio` sends no text; the backend authorizes the
+existing completed reply by owner and returns `audio/mpeg` (at most 512 KiB).
+Both endpoints use Bearer authentication/CORS; Deepgram keys remain backend-only.
+STT/TTS hash/status receipts prevent duplicate calls. Audio/transcript results
+live in memory for five minutes; expired/restarted receipts return 410. Calls have
+30-second deadlines, eight concurrent jobs and 20 new speech jobs/account/minute.
+Logs include endpoint/status only, never audio/transcripts.
+
+The frontend captures reduced context and real block IDs once at release/send time,
+before STT, then sends the transcript through the existing tutor request. Optional
+validated `language` guides the reply; feedback may contain `language` for Aura-2.
+`audio:false` means JSON contains no inline audio; audio is fetched separately.
+
+Native players support pause/replay; blocked autoplay shows a Play hint. TTS
+failures leave text/highlights available and never re-run DeepSeek. Closing chat
+stops recording/playback. Project/account changes abort client work, discard
+recordings/chat and revoke audio Blob URLs. No speech persists locally.
+
 ## Manual AI tutor
 
 `POST /v1/tutor/help` accepts JSON only:
@@ -61,6 +94,7 @@ Limits: 10 MiB JSON, depth 64, 2,000 manifest entries, 20 MiB per asset, 100 MiB
 interface HelpRequest {
   requestId: string; // a new UUID for each intentional Ask
   question?: string; // trimmed, 0..2000 UTF-16 code units; blank/omitted asks for a next step
+  language?: 'en'|'de'|'es'|'ja'|'fr'|'it'|'nl'; // Settings language, also used for STT
   context: { version: 1; text: string }; // bounded deterministic projection
   course?: { course?: string; lesson?: string; objective?: string };
   projectId?: string; // owned saved project UUID
@@ -71,7 +105,11 @@ interface HelpResponse {
   status: 'acknowledged' | 'processing' | 'complete' | 'failed';
   debugInput?: object; // exact provider user data, transient local debug mode only
   feedback?: {
-    id: string; text: string; audio: false;
+    id: string; text: string; audio: false; // text derived from parts, used for TTS/history
+    parts?: ({type: 'text' | 'value'; text: string} |
+      {type: 'block'; label: string; category: string; opcode: string;
+       action: 'add' | 'inspect' | 'remove'; sprite?: string; id?: string})[]; // absent on legacy receipts
+    language?: 'en'|'de'|'es'|'ja'|'fr'|'it'|'nl';
     highlights: {
       blocks: ({category: string; opcode: string; action: 'add'} |
         {category: string; opcode: string; action: 'inspect' | 'remove'; sprite: string; id: string})[];
@@ -84,7 +122,7 @@ Ask captures `vm.toJSON(null, {allowOptimization: false})` immediately and proje
 
 Projection excludes binaries, asset hashes/lengths, block/comment layout, monitors/UI metadata, volatile VM metadata, and empty collections. Sprite x/y is retained as program-relevant state. Unknown opcodes use readable opcode words; custom block signatures are included. Traversal has cycle, nesting and size limits and explicitly marks truncation. This is lossy AI input, never a restoration format.
 
-Manual Ask does not save a project, mark it saved, advance revisions, reset the dirty timer or upload assets. There are no automatic AI calls. Backend accepts at most 1 MiB JSON; context text is capped at 200,000 code units; optional course fields at 2,000 each. Recorded questions currently return 415; the UI exposes text only until bounded audio decoding/transcription is implemented.
+Manual Ask does not save a project, mark it saved, advance revisions, reset the dirty timer or upload assets. There are no unsolicited AI calls. Backend accepts at most 1 MiB JSON; context text is capped at 200,000 code units; optional course fields at 2,000 each. This endpoint remains JSON-only (415 for audio); voice questions use the separate transcription endpoint above.
 
 The backend adds the cached reference/curriculum, full parsed filtered `blockCatalog`,
 and backend-owned `responseGuidance`/`highlightGuide`. Client overrides are rejected.
@@ -105,8 +143,28 @@ same-type guessing. Transient fingerprints captured before Ask invalidate guidan
 for semantic edits/deletions (including nested input edits) while waiting or after
 the reply. Layout-only moves do not. Legacy highlight shapes are ignored.
 
+The frontend's Ask Tutor button opens a single text/voice-chat panel. Questions and
+plain-text replies remain ordered in memory for the current project/account
+session; closing/reopening preserves them, while project/account changes and
+page reloads clear them. The conversation scrolls to new messages. Enter sends;
+Shift+Enter inserts a newline. Empty questions still request a next-step hint.
+The JSON toggle selects the current or an earlier exchange for inspection.
+Retry updates the same exchange and resends its original request, not a new one.
+Chat history is not persisted or supplied to the provider as conversational
+context; voice transcription and reply playback use the endpoints documented above.
+
+Settings → Language controls the app, typed/blank tutor questions and expected
+voice transcription language. The shared classroom list is English, German,
+Spanish, Japanese, French, Italian and Dutch (Nova-3/Aura-2 support); other Settings
+choices are removed. There is no separate tutor language selector. Recordings
+capture this language on press; submitted requests retain it. TurboWarp's existing
+language switch remounts the editor UI, clears transient chat/retry state and
+discards recording without automatically resending requests. New questions use
+the new selection. Transcripts with a different
+language code are rejected instead of overriding Settings.
+
 The collapsible read-only reply tree remains `{request, response}`. No blocks are
-edited or automatically selected, and no category/sprite switch or audio is added.
+edited or automatically selected, and highlights do not switch categories/sprites.
 Text targets approximately 50 words and is limited to 80 word segments, without
 common Markdown formatting.
 
@@ -116,7 +174,7 @@ The backend stores only `(owner, requestId, normalized-input hash, processing st
 
 Retries resend the exact original question, context, editor availability and request ID retained in client memory. Same owner/ID/hash returns or waits for the same logical result; changed input returns `409 idempotency_conflict`. Provider work is claimed durably before invocation. Concurrent duplicate submissions cannot invoke it twice. A provider error/timeout is terminal for that ID; a crash can leave processing status unknown, and the server deliberately does not reinvoke it. Exactly-once provider billing across crashes requires provider-side idempotency/reconciliation. A new Ask is a new intentional request.
 
-No AI provider is configured by default: validate, hash and acknowledge without feedback. A host can inject `provider(input,{signal,idempotencyKey})` into `createApp`. Actual external-provider retention depends on the provider/account configuration and must be reviewed before enabling it. Current feedback is plain text, capped at 80 word segments and 10,000 code units. Spoken feedback is not implemented.
+No AI provider is configured by default: validate, hash and acknowledge without feedback. A host can inject `provider(input,{signal,idempotencyKey})` into `createApp`. Actual external-provider retention depends on the provider/account configuration and must be reviewed before enabling it. Current feedback includes validated inline parts and derived plain text, capped at 80 word segments and 10,000 code units. Deepgram synthesizes the derived text through the owner-authorized audio endpoint.
 
 ## Errors and local debug viewer
 
@@ -134,3 +192,20 @@ Frontend: `npm run test:unit -- --runInBand --testTimeout=30000` (includes accou
 The authenticated catalog, starter/demo downloads and manual completion contract
 is documented in [COURSES.md](COURSES.md). Completed demos are intentionally
 delivered to the player; alternative reference solutions remain server-only.
+
+
+Inline tutor markers are `[[block:opcode|spoken label]]` and `[[value:level]]`.
+Escape literal backslash, vertical bar and closing bracket as `\\`, `\|`, `\]`
+(and encode those backslashes again in JSON). A block marker requires exactly
+one matching validated highlight, including exact student sprite/ID for
+remove/inspect. Invalid or ambiguous block references become spoken-label text;
+malformed markers remain readable text. Values and labels are bounded at 200
+characters, spans at 512 characters, and markers at 24 per reply.
+The backend owns `parts`; provider-supplied structured parts are ignored.
+`text` joins text/value content and block spoken labels for speech/history.
+React renders chips as non-interactive spans and previews with editor-owned,
+Ask-time XML through the existing read-only Blockly renderer. Missing renderer
+or uncaptured/ambiguous source data falls back to the label. No model-generated
+HTML/XML or project edits are accepted. Preview capture stays browser-memory-only
+and never enters the Ask payload or JSON inspector. Editor highlighting still
+uses its original eight-second delay independently of immediate inline previews.

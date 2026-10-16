@@ -61,3 +61,20 @@ test('course saves include course context in the immutable retry payload', async
     await saver.flush();
     expect(api.save.mock.calls[1][1]).toBe(original);
 });
+
+test('student titles are captured with the revision and retries retain the old title before saving a rename', async () => {
+    saver.dispose();
+    let title = 'Course title';
+    saver = new ProjectPersistence({vm, adapter: api, id: 'stable-id', getTitle: () => title});
+    api.save.mockRejectedValueOnce(new Error('retry'));
+    await expect(saver.flush()).rejects.toThrow('retry');
+    const original = api.save.mock.calls[0][1];
+    title = 'My own version'; saver.edit();
+    await saver.flush(false);
+    expect(api.save.mock.calls[1][1]).toBe(original);
+    expect(original.title).toBe('Course title');
+    expect(saver.dirty()).toBe(true);
+    await tick(20000);
+    expect(api.save.mock.calls[2][1].title).toBe('My own version');
+    expect(saver.dirty()).toBe(false);
+});

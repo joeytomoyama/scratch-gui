@@ -33,7 +33,7 @@ const TitledHOC = function (WrappedComponent) {
             // if project is a new default project, and has loaded,
             if (this.props.isShowingWithoutId && prevProps.isAnyCreatingNewState) {
                 // reset title to default
-                const {title, isDefault} = this.handleReceivedProjectTitle();
+                const {title, isDefault} = this.handleReceivedProjectTitle(this.props.courseTitle);
                 this.props.onUpdateProjectTitle(title, isDefault);
             }
             // if the projectTitle hasn't changed, but the reduxProjectTitle
@@ -78,6 +78,7 @@ const TitledHOC = function (WrappedComponent) {
                 // we don't pass projectTitle prop to children -- they must use
                 // redux value
                 projectTitle,
+                courseTitle,
                 reduxProjectTitle,
                 /* eslint-enable no-unused-vars */
                 ...componentProps
@@ -97,6 +98,7 @@ const TitledHOC = function (WrappedComponent) {
         onChangedProjectTitle: PropTypes.func,
         onUpdateProjectTitle: PropTypes.func,
         projectTitle: PropTypes.string,
+        courseTitle: PropTypes.string,
         reduxProjectTitle: PropTypes.string
     };
 
