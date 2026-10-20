@@ -4,6 +4,7 @@ import {shallow, mount} from 'enzyme';
 import {JsonView} from 'react-json-view-lite';
 import {EventEmitter} from 'events';
 import {randomUUID} from 'crypto';
+import EditorContext from '../../../src/components/editor-layout/editor-context';
 import TutorMenu from '../../../src/components/tutor/tutor-menu';
 import {getAccountService} from '../../../src/lib/account/service';
 import {accountProjectAPI} from '../../../src/lib/private-project-api';
@@ -449,4 +450,31 @@ test('structured feedback renders inline chips while preserving the JSON respons
     expect(wrapper.find('[role="img"]').prop('aria-label')).toBe('wait');
     expect(wrapper.find('[role="log"]').text()).toContain('Use wait with 2.');
     expect(wrapper.state('exchanges')[0].response.feedback.parts[3]).toEqual({type: 'value', text: '2'});
+});
+
+test('mobile sheet lives outside the menu, preserves drafts, and cancels recording on panel changes', () => {
+    const {api, vm} = setup({mounted: true});
+    wrapper.unmount();
+    const setPanel = jest.fn();
+    const MobileView = ({panel}) => (<EditorContext.Provider value={{mobile: true, panel, setPanel, viewportHeight: 844}}>
+        <TutorMenu vm={vm} ready locale="en" />
+    </EditorContext.Provider>);
+    wrapper = mount(<MobileView panel="tutor" />, {attachTo: container});
+    vm.toJSON.mockClear();
+    const instance = wrapper.find(TutorMenu).instance();
+    const chat = document.getElementById('tutor-chat');
+    expect(chat).not.toBe(null);
+    expect(container.contains(chat)).toBe(false);
+    wrapper.find('textarea').simulate('change', {target: {value: 'Keep my draft'}});
+    jest.spyOn(instance.recorder, 'start').mockImplementation(() => {});
+    const cancel = jest.spyOn(instance.recorder, 'cancel').mockImplementation(() => {});
+    instance.startRecording();
+    wrapper.setProps({panel: 'code'});
+    expect(document.getElementById('tutor-chat')).toBe(null);
+    expect(instance.holding).toBe(false);
+    expect(cancel).toHaveBeenCalledTimes(1);
+    wrapper.setProps({panel: 'tutor'});
+    expect(wrapper.find('textarea').prop('value')).toBe('Keep my draft');
+    expect(api.ask).not.toHaveBeenCalled();
+    expect(vm.toJSON).not.toHaveBeenCalled();
 });

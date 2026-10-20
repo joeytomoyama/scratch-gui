@@ -11,6 +11,7 @@ import GreenFlagOverlay from '../../containers/green-flag-overlay.jsx';
 import Question from '../../containers/question.jsx';
 import MicIndicator from '../mic-indicator/mic-indicator.jsx';
 import {STAGE_DISPLAY_SIZES} from '../../lib/layout-constants.js';
+import {fitStage} from '../../lib/editor-layout';
 import {getStageDimensions, getMinWidth} from '../../lib/screen-utils.js';
 import styles from './stage.css';
 
@@ -28,6 +29,7 @@ const StageComponent = props => {
         micIndicator,
         question,
         stageSize,
+        stageViewport,
         useEditorDragStyle,
         onDeactivateColorPicker,
         onDoubleClick,
@@ -35,8 +37,14 @@ const StageComponent = props => {
         ...boxProps
     } = props;
 
-    const stageDimensions = getStageDimensions(stageSize, customStageSize, isFullScreen);
-    const minWidth = getMinWidth(stageSize);
+    let stageDimensions = stageViewport || getStageDimensions(stageSize, customStageSize, isFullScreen);
+    // Reserve space for properties/sprites in the desktop editor. Player-only
+    // and fullscreen embeds retain their original sizing behavior.
+    if (!stageViewport && !isFullScreen && !isPlayerOnly) {
+        stageDimensions = fitStage(customStageSize.width, customStageSize.height,
+            stageDimensions.width, Math.min(stageDimensions.height, Math.max(120, window.innerHeight - 390)));
+    }
+    const minWidth = stageViewport ? 0 : getMinWidth(stageSize);
     const transformStyle = stageDimensions.width < minWidth && !isFullScreen ? {
         transform: `translateX(${(minWidth - stageDimensions.width) / (isRtl ? -2 : 2)}px)`
     } : {};
@@ -44,6 +52,7 @@ const StageComponent = props => {
     return (
         <React.Fragment>
             <Box
+                data-stage-surface
                 className={classNames(
                     styles.stageWrapper,
                     {[styles.withColorPicker]: !isFullScreen && isColorPicking})}
@@ -169,6 +178,7 @@ StageComponent.propTypes = {
     onQuestionAnswered: PropTypes.func,
     question: PropTypes.string,
     stageSize: PropTypes.oneOf(Object.keys(STAGE_DISPLAY_SIZES)).isRequired,
+    stageViewport: PropTypes.object,
     useEditorDragStyle: PropTypes.bool
 };
 StageComponent.defaultProps = {

@@ -534,3 +534,23 @@ Retain Blockly's normal small drag-start threshold so input clicks and vertical
 palette scrolling still work. Wide layouts retain the permanent palette. Update
 mouse/touch tests and the real-renderer Operators regression to assert collapse
 at pickup within the palette, stable origins and successful subsequent drop.
+
+
+### 2026-10-20 - Implement the responsive Figma editor without a runtime rewrite
+
+- Implement desktop visual refinements and phone alternative **02 Workspace
+  first** in one browser app. Select by viewport width, preserving project-native
+  stage dimensions and aspect ratio; render the actual game without demo captions.
+- Keep the React 16.14 stack and existing editor/service components. Base UI is
+  not introduced because adopting it here would also require a React upgrade.
+- Keep one mounted Blockly workspace, VM and renderer across Code/Play and panel
+  transitions. Add a resizable Code drawer, a local Blocks overlay, Sprites/Tutor
+  sheets, and a project side menu. Preserve desktop/fullscreen/player behavior.
+- Extend the existing responsive palette adapter with a zero-width phone rail
+  reservation and no phone palette deletion region. Preserve deferred drag pickup
+  and flyout rebuild cleanup. Do not fork scratch-blocks for responsive layout.
+- Use checked-in Phosphor SVGs with MIT attribution, retain original add-sprite,
+  add-backdrop and extension icons, and respect existing color themes. Keep tutor
+  network/recording/auth/save contracts; typing switches the mobile mic to Send.
+- See `docs/RESPONSIVE_EDITOR.md` for integration points, checks and remaining
+  real-device/native-picker verification. No swipe/tilt blocks or native app port.

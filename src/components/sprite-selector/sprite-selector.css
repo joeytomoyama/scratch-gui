@@ -137,3 +137,7 @@
     background: black;
     filter: opacity(15%) brightness(0%);
 }
+
+
+:global([data-mobile="true"]) .sprite-wrapper { width: calc(20% - 8px); min-width: 0; max-width: none; height: 64px; min-height: 64px; margin: 4px; }
+:global([data-mobile="true"]) .items-wrapper { padding: 4px 4px 8px; }

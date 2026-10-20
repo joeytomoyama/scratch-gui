@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import greenFlagIcon from './icon--green-flag.svg';
+import greenFlagIcon from '../editor-layout/icons/flag.svg';
 import styles from './green-flag.css';
 
 const preserveGameFocus = event => {

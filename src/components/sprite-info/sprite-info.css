@@ -117,3 +117,23 @@
 .sprite-input {
     width: 8rem;
 }
+
+
+.position-field { display: flex; flex-direction: column; align-items: flex-start; }
+.position-title { font-size: 10px; line-height: 16px; padding: 1px 8px; border-radius: 8px 8px 0 0; background: color-mix(in srgb, $looks-secondary 9%, $ui-white); }
+:global([data-mobile="true"]) .sprite-info { padding: 8px 12px; border-radius: 0; }
+:global([data-mobile="true"]) .row { flex-wrap: nowrap; gap: 12px; align-items: flex-end; }
+:global([data-mobile="true"]) .row-primary { justify-content: space-between; margin-bottom: 8px; }
+:global([data-mobile="true"]) .row-primary > .group { flex: 1; min-width: 0; }
+:global([data-mobile="true"]) .row-primary > .group > label { width: 100%; }
+:global([data-mobile="true"]) .sprite-input { width: 100%; min-width: 50px; }
+:global([data-mobile="true"]) .sprite-info input { height: 32px; padding: 4px 6px; font-size: 16px; }
+:global([data-mobile="true"]) .position-group { border-top-left-radius: 0; padding: 3px 6px; gap: 6px; }
+:global([data-mobile="true"]) .position-group input { width: 46px; }
+:global([data-mobile="true"]) .position-group label { gap: 3px; }
+:global([data-mobile="true"]) .position-group label > span { margin: 0 2px 0 0; }
+:global([data-mobile="true"]) .icon-wrapper { width: 18px; height: 18px; padding: 1px; }
+:global([data-mobile="true"]) .sprite-info label > span { font-size: 10px; line-height: 14px; margin-bottom: 3px; }
+:global([data-mobile="true"]) .row-secondary > .column { gap: 0; }
+:global([data-mobile="true"]) .visibility-buttons button { height: 32px; width: 36px; padding: 6px; }
+:global([data-mobile="true"]) .larger-input input { width: 72px; }

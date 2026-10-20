@@ -3,6 +3,7 @@
 
 /* @todo: refactor this class name, and component: `sprite-selector` to `sprite` */
 .sprite-selector-item {
+    background: $ui-white;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;

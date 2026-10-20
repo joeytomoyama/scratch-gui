@@ -1,5 +1,6 @@
 @import "../../css/units.css";
 @import "../../css/colors.css";
+@import "../../css/filters.css";
 @import "../../css/z-index.css";
 
 .page-wrapper {
@@ -136,7 +137,7 @@
 
 .tab img {
     width: 1.375rem;
-    filter: grayscale(100%);
+    filter: $filter-icon-gray;
 }
 
 [dir="ltr"] .tab img {
@@ -157,7 +158,7 @@
 }
 
 .tab.is-selected img {
-    filter: none;
+    filter: $filter-icon-gray;
 }
 
 /* Tab style overrides from react-tabs */

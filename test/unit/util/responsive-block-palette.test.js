@@ -1,9 +1,13 @@
 /** @jest-environment jsdom */
 import ResponsiveBlockPalette from '../../../src/lib/responsive-block-palette';
 
-const setup = (width = 700, rtl = false) => {
+const setup = (width = 700, rtl = false, phone = false) => {
     const root = document.createElement('div');
-    document.body.appendChild(root);
+    if (phone) {
+        const shell = document.createElement('div');
+        shell.setAttribute('data-editor-shell', ''); shell.setAttribute('data-mobile', 'true');
+        shell.appendChild(root); document.body.appendChild(shell);
+    } else document.body.appendChild(root);
     let rootWidth = width;
     root.getBoundingClientRect = () => ({width: rootWidth, left: 0, right: rootWidth, top: 0, bottom: 600});
     let visible = true;
@@ -140,4 +144,26 @@ test('compact deletion targets cover only the rail, and disposal restores hooks 
     expect(s.flyout.position).toBe(s.originals.position);
     expect(s.flyout.show).toBe(s.originals.show);
     expect(s.root.hasAttribute('data-compact-palette')).toBe(false);
+});
+
+test.each([false, true])('phone palette toggles without shifting the workspace, including RTL=%s', rtl => {
+    const s = setup(390, rtl, true);
+    expect(s.toolbox.getWidth()).toBe(0);
+    expect(s.flyout.isVisible()).toBe(false);
+    window.dispatchEvent(new CustomEvent('classroom-palette-toggle', {detail: {open: true}}));
+    expect(s.flyout.isVisible()).toBe(true);
+    expect(s.toolbox.getWidth()).toBe(0);
+    expect(s.flyout.position()).toBe(310);
+    expect(s.toolbox.getClientRect()).toBe(null);
+    s.workspace.currentGesture_ = {flyout_: s.flyout, isDraggingBlock_: true};
+    s.palette.collapseAfterDrag();
+    expect(s.root.getAttribute('data-palette-visible')).toBe('false');
+    expect(s.toolbox.getWidth()).toBe(0);
+    s.root.parentElement.setAttribute('data-mobile', 'false');
+    s.setWidth(1000); s.palette.updateLayout();
+    expect(s.toolbox.getWidth()).toBe(310);
+    expect(s.flyout.isVisible()).toBe(true);
+    s.palette.dispose();
+    window.dispatchEvent(new CustomEvent('classroom-palette-toggle', {detail: {open: true}}));
+    expect(s.root.hasAttribute('data-phone-palette')).toBe(false);
 });

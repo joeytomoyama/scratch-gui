@@ -1,3 +1,4 @@
+@import "../../css/filters.css";
 .root { position: relative; margin-left: .75rem; color: inherit; }
 .trigger { border: 1px solid #ffffff60; border-radius: 8px; background: #ffffff18; color: inherit; padding: 8px 12px; font: inherit; cursor: pointer; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .panel { position: fixed; top: 52px; right: 12px; z-index: 10000; width: 350px; max-width: calc(100vw - 24px); max-height: calc(100vh - 70px); overflow-y: auto; box-sizing: border-box; padding: 20px; background: #fff; color: #17212e; border: 1px solid #d7dce3; border-radius: 14px; box-shadow: 0 12px 48px #0003; font-size: 14px; font-weight: normal; text-align: left; }
@@ -17,3 +18,12 @@
 .error { padding: 10px; border-radius: 6px; color: #9d182b; background: #fff0f2; }
 .message { padding: 10px; border-radius: 6px; color: #155331; background: #eaf7ef; }
 .note { color: #536175; font-size: 12px; line-height: 1.5; margin-bottom: 0; }
+
+
+:global([data-mobile="true"]) .root { margin: 0; }
+:global([data-mobile="true"]) .trigger { width: 100%; max-width: none; text-align: start; min-height: 44px; border-color: #d7dce3; }
+:global([data-mobile="true"]) .panel { top: 72px; right: 12px; width: calc(100vw - 24px); max-height: calc(var(--editor-height, 100dvh) - 100px); }
+
+.trigger img { height: 18px; width: 18px; vertical-align: middle; }
+
+.trigger img { filter: $filter-icon-gray; }

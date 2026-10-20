@@ -24,6 +24,7 @@ const StageWrapperComponent = function (props) {
 
     return (
         <Box
+            data-stage-wrapper
             className={classNames(
                 styles.stageWrapper,
                 {
@@ -35,13 +36,19 @@ const StageWrapperComponent = function (props) {
             )}
             dir={isRtl ? 'rtl' : 'ltr'}
         >
-            <Box className={styles.stageMenuWrapper}>
+            <Box
+                className={styles.stageMenuWrapper}
+                data-stage-header
+            >
                 <StageHeader
                     stageSize={stageSize}
                     vm={vm}
                 />
             </Box>
-            <Box className={styles.stageCanvasWrapper}>
+            <Box
+                className={styles.stageCanvasWrapper}
+                data-stage-canvas
+            >
                 {
                     isRendererSupported ?
                         <Stage

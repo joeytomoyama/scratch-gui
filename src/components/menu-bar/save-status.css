@@ -1,3 +1,4 @@
+@import "../../css/filters.css";
 .save-button {
     display: inline-flex;
     align-items: center;
@@ -23,3 +24,7 @@
 @media (prefers-reduced-motion: reduce) {
     .spinner { animation: none; }
 }
+
+.save-button img { flex-shrink: 0; }
+
+.save-button img { filter: $filter-icon-gray; }

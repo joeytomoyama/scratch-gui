@@ -1,5 +1,7 @@
 import TutorParts from './tutor-parts.jsx';
 import React from 'react';
+import {createPortal} from 'react-dom';
+import EditorContext from '../editor-layout/editor-context';
 import PropTypes from 'prop-types';
 import {JsonView, collapseAllNested, defaultStyles} from 'react-json-view-lite';
 import jsonStyles from 'react-json-view-lite/dist/index.css';
@@ -11,7 +13,8 @@ import {ManualTutor} from '../../lib/tutor/manual';
 import {setTutorHighlights} from '../../lib/tutor/highlights';
 import {VoiceRecorder} from '../../lib/tutor/voice-recorder';
 import {classroomLocale} from '../../lib/classroom-locales';
-import microphoneIcon from '../mic-indicator/mic-indicator.svg';
+import microphoneIcon from '../editor-layout/icons/microphone.svg';
+import sendIcon from '../editor-layout/icons/send.svg';
 import styles from './tutor-menu.css';
 import toolbarStyles from '../menu-bar/toolbar-button.css';
 
@@ -64,9 +67,16 @@ class TutorMenu extends React.Component {
         });
     }
     componentDidUpdate (prevProps, prevState) {
-        if (this.state.open && !prevState.open && !this.composer?.disabled) this.composer?.focus();
-        if (this.chatLog && this.state.open && this.state.view === 'chat' &&
-            (prevState.exchanges !== this.state.exchanges || !prevState.open || prevState.view !== 'chat')) {
+        const open = this.isOpen();
+        if (this.context.mobile && this.wasOpen && !open) {
+            if (this.holding) this.cancelRecording?.();
+            this.stopAudio();
+        }
+        const justOpened = open && !this.wasOpen;
+        this.wasOpen = open;
+        if (justOpened && !this.composer?.disabled) this.composer?.focus({preventScroll: true});
+        if (this.chatLog && open && this.state.view === 'chat' &&
+            (prevState.exchanges !== this.state.exchanges || justOpened || prevState.view !== 'chat')) {
             // Instant scrolling also respects reduced-motion preferences.
             this.chatLog.scrollTop = this.chatLog.scrollHeight;
         }
@@ -87,9 +97,13 @@ class TutorMenu extends React.Component {
         document.removeEventListener('visibilitychange', this.visibilityChanged);
         this.props.vm.runtime.off('PROJECT_LOADED', this.loaded);
     }
+    isOpen () {
+        return this.context.mobile ? this.context.panel === 'tutor' : this.state.open;
+    }
     close () {
+        if (this.context.mobile) this.context.setPanel(null);
         this.cancelRecording?.(); this.stopAudio();
-        this.setState({open: false}, () => this.trigger?.focus());
+        this.setState({open: false}, () => this.trigger?.focus({preventScroll: true}));
     }
     updateExchange (id, changes) {
         this.setState(state => ({exchanges: state.exchanges.map(exchange =>
@@ -166,7 +180,7 @@ class TutorMenu extends React.Component {
                     this.updateExchange(id, {audioURL, audioError: ''});
                     // The native player is available after React commits. Autoplay may be blocked by the browser.
                     this.setState({}, () => {
-                        if (!this.state.open) return;
+                        if (!this.isOpen()) return;
                         this.players.get(id)?.play()
                             ?.catch(() => {
                                 if (this.mounted && current === this.tutor) this.updateExchange(id, {audioError: 'Press play to hear the tutor.'});
@@ -266,24 +280,44 @@ class TutorMenu extends React.Component {
             </div> : <p className={styles.empty}>Send a message to inspect its request and response.</p>}
         </div>);
     }
+    renderPanel (panel) {
+        return this.context.mobile ? createPortal(panel, document.body) : panel;
+    }
     render () {
         const s = this.state;
         const latest = s.exchanges[s.exchanges.length - 1];
-        return (<div className={styles.root}>
+        const mobile = this.context.mobile;
+        const open = this.isOpen();
+        const sendText = s.busy ? 'Waiting...' : 'Send';
+        const sendLabel = mobile ? (<img
+            src={sendIcon}
+            alt={sendText}
+        />) : sendText;
+        return (<div
+            className={styles.root}
+            data-mobile-tutor={mobile}
+            data-has-message={Boolean(s.question.trim())}
+        >
             <button
                 className={toolbarStyles.button}
                 type="button"
-                aria-expanded={s.open}
+                aria-expanded={open}
                 aria-controls="tutor-chat"
                 ref={node => {
                     this.trigger = node;
                 }}
                 onClick={() => (s.open ? this.close() : this.setState({open: true}))}
             >Ask Tutor</button>
-            {s.open && <section
+            {open && this.renderPanel(<section
                 id="tutor-chat"
+                data-mobile-tutor={mobile}
+                data-has-message={Boolean(s.question.trim())}
+                style={mobile ? {'--editor-height': `${this.context.viewportHeight}px`} : null}
                 className={styles.panel}
                 aria-label="Tutor chat"
+                role={mobile ? 'dialog' : null}
+                aria-modal={mobile ? true : null}
+                tabIndex={-1}
                 onKeyDown={event => {
                     if (event.key === 'Escape') {
                         event.stopPropagation(); this.close();
@@ -331,85 +365,93 @@ class TutorMenu extends React.Component {
                     }}
                 >
                     {!s.user && <p>Sign in using Account to ask the tutor.</p>}
-                    <label className={styles.question}>Your message (optional)
-                        <textarea
-                            maxLength={2000}
-                            rows={2}
-                            value={s.question}
-                            placeholder="What would you like help with?"
-                            disabled={!this.tutor || !this.props.ready || s.recording !== 'idle'}
-                            ref={node => {
-                                this.composer = node;
-                            }}
-                            onChange={event => this.setState({question: event.target.value})}
-                            onKeyDown={event => {
-                                if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing && event.keyCode !== 229) {
-                                    event.preventDefault(); this.ask();
-                                }
-                            }}
-                        />
-                    </label>
+                    <div className={styles.messageRow}>
+                        <label className={styles.question}>Your message (optional)
+                            <textarea
+                                maxLength={2000}
+                                rows={2}
+                                value={s.question}
+                                placeholder="What would you like help with?"
+                                disabled={!this.tutor || !this.props.ready || s.recording !== 'idle'}
+                                ref={node => {
+                                    this.composer = node;
+                                }}
+                                onChange={event => this.setState({question: event.target.value})}
+                                onKeyDown={event => {
+                                    if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing && event.keyCode !== 229) {
+                                        event.preventDefault(); this.ask();
+                                    }
+                                }}
+                            />
+                        </label>
+                        <div className={styles.composerActions}>
+                            <button
+                                className={`${styles.actionButton} ${styles.microphone}`}
+                                type="button"
+                                aria-label="Hold to talk"
+                                aria-pressed={s.recording === 'recording'}
+                                disabled={!this.tutor || !this.props.ready || s.busy || !this.recorder?.supported}
+                                onPointerDown={event => {
+                                    if (event.button !== 0) return;
+                                    event.preventDefault(); event.currentTarget.setPointerCapture?.(event.pointerId);
+                                    this.startRecording();
+                                }}
+                                onPointerUp={() => this.stopRecording()}
+                                onPointerCancel={() => this.cancelRecording()}
+                                onLostPointerCapture={() => {
+                                    if (this.holding) this.cancelRecording();
+                                }}
+                                onKeyDown={event => {
+                                    if ([' ', 'Enter'].includes(event.key)) {
+                                        event.stopPropagation?.();
+                                        event.preventDefault(); if (!event.repeat) this.startRecording();
+                                    }
+                                }}
+                                onKeyUp={event => {
+                                    if ([' ', 'Enter'].includes(event.key)) {
+                                        event.stopPropagation?.();
+                                        event.preventDefault(); this.stopRecording();
+                                    }
+                                }}
+                                onBlur={() => this.cancelRecording()}
+                            >
+                                <img
+                                    src={microphoneIcon}
+                                    alt=""
+                                />
+                                {!mobile && (s.recording === 'recording' ? 'Recording…' : 'Hold to talk')}
+                            </button>
+                            <Button
+                                className={styles.sendButton}
+                                type="submit"
+                                disabled={!this.tutor || !this.props.ready || s.busy || s.recording !== 'idle'}
+                                onMouseDown={event => event.preventDefault()}
+                            >{sendLabel}</Button>
+                        </div>
+                    </div>
                     <p className={styles.voiceNotice}>{this.recorder?.supported ?
                         'Hold to record. Release to send to Deepgram (up to 60 seconds).' :
                         'Voice recording is unavailable in this browser. You can type instead.'}</p>
+                    {mobile && !s.question.trim() && <button
+                        type="submit"
+                        className={styles.hintButton}
+                        disabled={!this.tutor || !this.props.ready || s.busy || s.recording !== 'idle'}
+                    >Get a next-step hint</button>}
                     {s.voiceError && <p role="alert">{s.voiceError}</p>}
                     {s.recording !== 'idle' && <p role="status">{s.recording === 'permission' ?
                         'Allow microphone access, then hold again if needed.' : 'Recording… Release to send.'}</p>}
-                    <div className={styles.composerActions}>
-                        <button
-                            className={`${styles.actionButton} ${styles.microphone}`}
-                            type="button"
-                            aria-label="Hold to talk"
-                            aria-pressed={s.recording === 'recording'}
-                            disabled={!this.tutor || !this.props.ready || s.busy || !this.recorder?.supported}
-                            onPointerDown={event => {
-                                if (event.button !== 0) return;
-                                event.preventDefault(); event.currentTarget.setPointerCapture?.(event.pointerId);
-                                this.startRecording();
-                            }}
-                            onPointerUp={() => this.stopRecording()}
-                            onPointerCancel={() => this.cancelRecording()}
-                            onLostPointerCapture={() => {
-                                if (this.holding) this.cancelRecording();
-                            }}
-                            onKeyDown={event => {
-                                if ([' ', 'Enter'].includes(event.key)) {
-                                    event.stopPropagation?.();
-                                    event.preventDefault(); if (!event.repeat) this.startRecording();
-                                }
-                            }}
-                            onKeyUp={event => {
-                                if ([' ', 'Enter'].includes(event.key)) {
-                                    event.stopPropagation?.();
-                                    event.preventDefault(); this.stopRecording();
-                                }
-                            }}
-                            onBlur={() => this.cancelRecording()}
-                        >
-                            <img
-                                src={microphoneIcon}
-                                alt=""
-                            />
-                            {s.recording === 'recording' ? 'Recording…' : 'Hold to talk'}
-                        </button>
-                        {this.tutor?.pending && latest?.status !== 'complete' && <button
-                            className={styles.actionButton}
-                            type="button"
-                            disabled={s.busy || !this.props.ready}
-                            onClick={() => this.ask(true)}
-                        >Retry same request</button>}
-                        <Button
-                            className={styles.sendButton}
-                            type="submit"
-                            disabled={!this.tutor || !this.props.ready || s.busy || s.recording !== 'idle'}
-                            onMouseDown={event => event.preventDefault()}
-                        >{s.busy ? 'Waiting…' : 'Send'}</Button>
-                    </div>
+                    {this.tutor?.pending && latest?.status !== 'complete' && <button
+                        className={styles.actionButton}
+                        type="button"
+                        disabled={s.busy || !this.props.ready}
+                        onClick={() => this.ask(true)}
+                    >Retry same request</button>}
                 </form>
-            </section>}
+            </section>)}
         </div>);
     }
 }
+TutorMenu.contextType = EditorContext;
 TutorMenu.propTypes = {
     locale: PropTypes.string,
     vm: PropTypes.object.isRequired,

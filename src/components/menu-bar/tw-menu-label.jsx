@@ -10,6 +10,7 @@ class MenuLabel extends React.Component {
         super(props);
         bindAll(this, [
             'handleClick',
+            'handleKeyDown',
             'handleMouseUp',
             'menuRef'
         ]);
@@ -29,6 +30,11 @@ class MenuLabel extends React.Component {
     }
     removeListeners () {
         document.removeEventListener('mouseup', this.handleMouseUp);
+    }
+    handleKeyDown (event) {
+        if (event.target !== event.currentTarget || !['Enter', ' '].includes(event.key)) return;
+        event.preventDefault();
+        this.handleClick(event);
     }
     handleClick (e) {
         // this is a bit sketchy, but we want to allow clicking on the menu itself and the images
@@ -56,6 +62,10 @@ class MenuLabel extends React.Component {
                 className={classNames(styles.menuBarItem, styles.hoverable, {
                     [styles.active]: this.props.open
                 })}
+                role="button"
+                tabIndex={0}
+                aria-expanded={this.props.open}
+                onKeyDown={this.handleKeyDown}
                 onClick={this.handleClick}
                 ref={this.menuRef}
             >

@@ -1,3 +1,5 @@
+import accountIcon from '../editor-layout/icons/account.svg';
+import caretIcon from '../editor-layout/icons/caret.svg';
 import React from 'react';
 import {getAccountService} from '../../lib/account/service';
 import {accountDisplayName} from '../../lib/account/validation';
@@ -163,7 +165,13 @@ class AccountMenu extends React.Component {
                     aria-controls="account-panel"
                     onClick={() => (open ? this.close() : this.setState({open: true}))}
                 >
-                    <span aria-hidden="true">◉</span> {name} <span aria-hidden="true">▾</span>
+                    <img
+                        src={accountIcon}
+                        alt=""
+                    /> {name} <img
+                        src={caretIcon}
+                        alt=""
+                    />
                 </button>
                 {open && (
                     <section

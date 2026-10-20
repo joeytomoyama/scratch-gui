@@ -66,12 +66,13 @@ import {setFileHandle} from '../../reducers/tw.js';
 
 import styles from './menu-bar.css';
 
-import dropdownCaret from './dropdown-caret.svg';
+import dropdownCaret from '../editor-layout/icons/caret.svg';
 import aboutIcon from './icon--about.svg';
-import fileIcon from './icon--file.svg';
-import editIcon from './icon--edit.svg';
+import coursesIcon from '../editor-layout/icons/courses.svg';
+import fileIcon from '../editor-layout/icons/file.svg';
+import editIcon from '../editor-layout/icons/edit.svg';
 import errorIcon from './tw-error.svg';
-import advancedIcon from './tw-advanced.svg';
+import advancedIcon from '../editor-layout/icons/advanced.svg';
 
 
 import sharedMessages from '../../lib/shared-messages';
@@ -650,6 +651,11 @@ class MenuBar extends React.Component {
                             className={classNames(styles.menuBarItem, styles.hoverable, styles.menuItemLink)}
                             href="courses.html"
                         >
+                            <img
+                                className={styles.coursesIcon}
+                                src={coursesIcon}
+                                alt=""
+                            />
                             <FormattedMessage
                                 defaultMessage="Courses"
                                 description="Link to the student course overview"

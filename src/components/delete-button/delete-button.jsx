@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 
 import styles from './delete-button.css';
-import deleteIcon from './icon--delete.svg';
+import deleteIcon from '../editor-layout/icons/trash.svg';
 
 const DeleteButton = props => (
     <button

@@ -88,3 +88,5 @@
 .open-link {
     margin-left: 0.5rem;
 }
+
+:global([data-mobile="true"]) .dropdown-label { display: inline; }

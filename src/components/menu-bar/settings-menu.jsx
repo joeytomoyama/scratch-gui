@@ -13,8 +13,8 @@ import TWBlocksThemeMenu from './tw-theme-blocks.jsx';
 import menuBarStyles from './menu-bar.css';
 import styles from './settings-menu.css';
 
-import dropdownCaret from './dropdown-caret.svg';
-import settingsIcon from './icon--settings.svg';
+import dropdownCaret from '../editor-layout/icons/caret.svg';
+import settingsIcon from '../editor-layout/icons/settings.svg';
 
 const SettingsMenu = ({
     canChangeLanguage,

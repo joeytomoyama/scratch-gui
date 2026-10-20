@@ -20,7 +20,7 @@ class ResponsiveBlockPalette {
         this.fullWidth = originalWidth();
         this.categoryWidth = this.fullWidth - this.flyout.getWidth();
         this.hook(this.toolbox, 'getWidth', original => (...args) =>
-            (this.compact && !this.positioning ? this.categoryWidth : original(...args)));
+            (this.compact && !this.positioning ? (this.phone ? 0 : this.categoryWidth) : original(...args)));
         // The upstream flyout positions itself using the combined rail/palette
         // width. Its own positioning still needs that width, including in RTL.
         this.hook(this.flyout, 'position', original => (...args) => {
@@ -33,6 +33,7 @@ class ResponsiveBlockPalette {
         });
         // A compact palette is an overlay, not a workspace deletion target.
         this.hook(this.toolbox, 'getClientRect', original => (...args) => {
+            if (this.phone) return null;
             const autoClose = this.flyout.autoClose;
             if (this.compact) this.flyout.autoClose = true;
             try {
@@ -75,6 +76,13 @@ class ResponsiveBlockPalette {
         document.addEventListener('mouseup', this.onEnd, true);
         document.addEventListener('touchend', this.onEnd, true);
         document.addEventListener('touchcancel', this.onEnd, true);
+        this.onToggle = event => {
+            if (!this.phone) return;
+            this.collapsed = !event.detail.open;
+            this.syncVisibility();
+            this.flyout.position();
+        };
+        window.addEventListener('classroom-palette-toggle', this.onToggle);
         this.onResize = () => this.updateLayout();
         window.addEventListener('resize', this.onResize);
         if (typeof ResizeObserver !== 'undefined') {
@@ -97,13 +105,25 @@ class ResponsiveBlockPalette {
         const width = this.root.getBoundingClientRect().width;
         // Hidden Code tabs and active gestures must not change workspace origins.
         if (!width || this.workspace.isDragging()) return;
-        const compact = width - this.fullWidth < MIN_WORKSPACE_WIDTH;
-        if (compact === this.compact) return;
+        const phone = this.root.closest('[data-editor-shell]')?.getAttribute('data-mobile') === 'true';
+        const compact = phone || width - this.fullWidth < MIN_WORKSPACE_WIDTH;
+        if (compact === this.compact && phone === this.phone) return;
+        this.phone = phone;
         this.compact = compact;
         this.collapsed = compact;
         this.root.setAttribute('data-compact-palette', String(compact));
-        this.flyout.setVisible(!compact);
+        this.syncVisibility();
         this.workspace.resize();
+    }
+
+    syncVisibility () {
+        this.flyout.setVisible(!this.collapsed);
+        this.root.setAttribute('data-phone-palette', String(Boolean(this.phone)));
+        this.root.setAttribute('data-palette-visible', String(!this.collapsed));
+        if (this.phone) {
+            window.dispatchEvent(new CustomEvent('classroom-palette-change',
+                {detail: {open: !this.collapsed}}));
+        }
     }
 
     collapseAfterDrag () {
@@ -113,13 +133,14 @@ class ResponsiveBlockPalette {
         if (!gesture || gesture.flyout_ !== this.flyout || !gesture.isDraggingBlock_) return;
         this.collapsed = true;
         // setVisible preserves palette blocks/listeners; hide() removes listeners.
-        this.flyout.setVisible(false);
+        this.syncVisibility();
     }
 
     dispose () {
         this.disposed = true;
         if (this.observer) this.observer.disconnect();
         window.removeEventListener('resize', this.onResize);
+        window.removeEventListener('classroom-palette-toggle', this.onToggle);
         document.removeEventListener('mousemove', this.onMove, true);
         document.removeEventListener('touchmove', this.onMove, true);
         document.removeEventListener('mouseup', this.onEnd, true);
@@ -127,6 +148,8 @@ class ResponsiveBlockPalette {
         document.removeEventListener('touchcancel', this.onEnd, true);
         this.restorers.reverse().forEach(restore => restore());
         this.root.removeAttribute('data-compact-palette');
+        this.root.removeAttribute('data-phone-palette');
+        this.root.removeAttribute('data-palette-visible');
     }
 }
 

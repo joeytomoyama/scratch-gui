@@ -1,5 +1,6 @@
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
+import saveIcon from '../editor-layout/icons/save.svg';
 import React from 'react';
 import InlineMessages from '../../containers/inline-messages.jsx';
 import {filterInlineAlerts} from '../../reducers/alerts';
@@ -26,6 +27,12 @@ const TWSaveStatus = ({
             onClick={onSave}
             disabled={disabled}
         >
+            <img
+                src={saveIcon}
+                alt=""
+                width={18}
+                height={18}
+            />
             {saving && <span
                 className={styles.spinner}
                 aria-hidden="true"

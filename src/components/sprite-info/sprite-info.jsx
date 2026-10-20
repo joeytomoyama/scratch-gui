@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React from 'react';
+import EditorContext from '../editor-layout/editor-context';
 
 import Box from '../box/box.jsx';
 import Label from '../forms/label.jsx';
@@ -15,10 +16,10 @@ import {isWideLocale} from '../../lib/locale-utils.js';
 
 import styles from './sprite-info.css';
 
-import xIcon from './icon--x.svg';
-import yIcon from './icon--y.svg';
-import showIcon from '!../../lib/tw-recolor/build!./icon--show.svg';
-import hideIcon from '!../../lib/tw-recolor/build!./icon--hide.svg';
+import xIcon from '../editor-layout/icons/x.svg';
+import yIcon from '../editor-layout/icons/y.svg';
+import showIcon from '../editor-layout/icons/eye.svg';
+import hideIcon from '../editor-layout/icons/hide.svg';
 import ToggleButtons from '../toggle-buttons/toggle-buttons.jsx';
 
 const BufferedInput = BufferedInputHOC(Input);
@@ -63,9 +64,9 @@ class SpriteInfo extends React.Component {
 
         const sprite = (
             <FormattedMessage
-                defaultMessage="Sprite"
+                defaultMessage="Name"
                 description="Sprite info label"
-                id="gui.SpriteInfo.sprite"
+                id="classroom.SpriteInfo.name"
             />
         );
         const showLabel = (
@@ -83,7 +84,8 @@ class SpriteInfo extends React.Component {
             />
         );
 
-        const labelAbove = isWideLocale(this.props.intl.locale);
+        const mobile = this.context.mobile;
+        const labelAbove = mobile || isWideLocale(this.props.intl.locale);
 
         const spriteNameInput = (
             <BufferedInput
@@ -105,7 +107,7 @@ class SpriteInfo extends React.Component {
         const xPosition = (
             <div className={styles.group}>
                 {
-                    (stageSize === STAGE_DISPLAY_SIZES.full || stageSize === STAGE_DISPLAY_SIZES.large) ?
+                    (mobile || stageSize === STAGE_DISPLAY_SIZES.full || stageSize === STAGE_DISPLAY_SIZES.large) ?
                         <div className={styles.iconWrapper}>
                             <img
                                 aria-hidden="true"
@@ -133,7 +135,7 @@ class SpriteInfo extends React.Component {
         const yPosition = (
             <div className={styles.group}>
                 {
-                    (stageSize === STAGE_DISPLAY_SIZES.full || stageSize === STAGE_DISPLAY_SIZES.large) ?
+                    (mobile || stageSize === STAGE_DISPLAY_SIZES.full || stageSize === STAGE_DISPLAY_SIZES.large) ?
                         <div className={styles.iconWrapper}>
                             <img
                                 aria-hidden="true"
@@ -158,7 +160,7 @@ class SpriteInfo extends React.Component {
             </div>
         );
 
-        if (stageSize === STAGE_DISPLAY_SIZES.small) {
+        if (!mobile && stageSize === STAGE_DISPLAY_SIZES.small) {
             return (
                 <Box className={styles.spriteInfo}>
                     <div className={classNames(styles.row, styles.rowPrimary)}>
@@ -187,15 +189,23 @@ class SpriteInfo extends React.Component {
                             {spriteNameInput}
                         </Label>
                     </div>
-                    <div className={styles.positionGroup}>
-                        {xPosition}
-                        {yPosition}
+                    <div className={styles.positionField}>
+                        {mobile && <span className={styles.positionTitle}><FormattedMessage
+                            id="classroom.SpriteInfo.position"
+                            defaultMessage="Position"
+                            description="Label above sprite position fields"
+                        /></span>}
+                        <div className={styles.positionGroup}>
+                            {xPosition}
+                            {yPosition}
+                        </div>
                     </div>
                 </div>
                 <div className={classNames(styles.row, styles.rowSecondary)}>
                     <div className={labelAbove ? styles.column : styles.group}>
                         {
-                            stageSize === STAGE_DISPLAY_SIZES.full || stageSize === STAGE_DISPLAY_SIZES.large ?
+                            mobile || stageSize === STAGE_DISPLAY_SIZES.full ||
+                            stageSize === STAGE_DISPLAY_SIZES.large ?
                                 <Label
                                     secondary
                                     text={showLabel}
@@ -253,6 +263,8 @@ class SpriteInfo extends React.Component {
         );
     }
 }
+
+SpriteInfo.contextType = EditorContext;
 
 SpriteInfo.propTypes = {
     direction: PropTypes.oneOfType([

@@ -1,4 +1,5 @@
 @import "../../css/colors.css";
+@import "../../css/filters.css";
 @import "../../css/units.css";
 @import "../../css/z-index.css";
 
@@ -244,3 +245,21 @@
     outline: 3px solid currentColor;
     outline-offset: -3px;
 }
+
+
+.courses-icon { width: 18px; height: 18px; margin-inline-end: 6px; }
+:global([data-mobile="true"]) .menu-bar { height: auto; min-height: 0; display: flex; flex-direction: column; gap: 12px; padding: 0 16px 20px; background: $ui-white; background-image: none; color: $text-primary; font-weight: normal; }
+:global([data-mobile="true"]) .main-menu, :global([data-mobile="true"]) .file-group, :global([data-mobile="true"]) .account-info-group { flex-direction: column; align-items: stretch; width: 100%; padding: 0; gap: 4px; }
+:global([data-mobile="true"]) .file-group .menu-bar-item { height: 48px; width: 100%; padding: 0 12px; border-radius: 8px; }
+:global([data-mobile="true"]) .menu-bar-item img { filter: $filter-icon-gray; }
+:global([data-mobile="true"]) .collapsible-label { display: inline; }
+:global([data-mobile="true"]) .divider { display: none; }
+:global([data-mobile="true"]) .growable { width: 100%; max-width: none; flex: none; }
+:global([data-mobile="true"]) .title-field-growable { width: 100%; color: $text-primary; background: $ui-secondary; }
+:global([data-mobile="true"]) .menu-bar-menu { top: 0; margin-top: 48px; max-width: calc(100vw - 40px); z-index: 100; }
+
+.menu-bar-item > img { filter: brightness(0) invert(1); }
+
+:global([data-mobile="true"]) .menu-bar-menu { color: $menu-bar-foreground; }
+
+:global([data-mobile="true"]) .menu-bar-item { box-sizing: border-box; }

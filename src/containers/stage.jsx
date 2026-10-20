@@ -11,6 +11,7 @@ import VideoProvider from '../lib/video/video-provider';
 import {BitmapAdapter as V2BitmapAdapter} from '@turbowarp/scratch-svg-renderer';
 
 import StageComponent from '../components/stage/stage.jsx';
+import EditorContext from '../components/editor-layout/editor-context';
 
 import {
     activateColorPicker,
@@ -95,6 +96,7 @@ class Stage extends React.Component {
     }
     shouldComponentUpdate (nextProps, nextState) {
         return this.props.stageSize !== nextProps.stageSize ||
+            this.props.stageViewport !== nextProps.stageViewport ||
             this.props.isColorPicking !== nextProps.isColorPicking ||
             this.state.colorInfo !== nextState.colorInfo ||
             this.props.isFullScreen !== nextProps.isFullScreen ||
@@ -483,6 +485,7 @@ Stage.propTypes = {
     onDeactivateColorPicker: PropTypes.func,
     stageSize: PropTypes.oneOf(Object.keys(STAGE_DISPLAY_SIZES)).isRequired,
     useEditorDragStyle: PropTypes.bool,
+    stageViewport: PropTypes.object,
     vm: PropTypes.instanceOf(VM).isRequired
 };
 
@@ -517,7 +520,16 @@ const mapDispatchToProps = dispatch => ({
     onDeactivateColorPicker: color => dispatch(deactivateColorPicker(color))
 });
 
-export default connect(
+const ConnectedStage = connect(
     mapStateToProps,
     mapDispatchToProps
 )(Stage);
+
+const ResponsiveStage = props => {
+    const {stageViewport} = React.useContext(EditorContext);
+    return (<ConnectedStage
+        {...props}
+        stageViewport={stageViewport}
+    />);
+};
+export default ResponsiveStage;
