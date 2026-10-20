@@ -15,7 +15,7 @@ const resize = (width, height) => {
 };
 afterEach(() => resize(initial.width, initial.height));
 
-test.each([[360, 640], [480, 360]])('stage %sx%s fits every mobile display state without changing project dimensions', (w, h) => {
+test.each([[360, 640], [480, 360], [480, 980]])('stage %sx%s fits every mobile display state without changing project dimensions', (w, h) => {
     for (const width of [320, 390, 844]) {
         for (const height of [390, 844]) {
             for (const panel of ['code', null, 'sprites', 'tutor']) {
@@ -80,4 +80,33 @@ test('short landscape phones reserve enough Code height for the workspace zoom c
         panel: 'code', preview: 'compact'});
     expect(geometry.codeHeight).toBe(220);
     expect(geometry.previewHeight).toBe(98);
+});
+
+test.each([1, 2])('return asset tab %s to Code on mobile without remounting the editor', tab => {
+    resize(1440, 1000);
+    const activate = jest.fn();
+    let wrapper;
+    act(() => { wrapper = mount(<EditorLayout vm={{}} customStageSize={{width: 480, height: 980}}
+        activeTabIndex={tab} onActivateTab={activate}>
+        {({mobile}) => <div data-probe="editor" data-mobile-assets-disabled={mobile} />}
+    </EditorLayout>); });
+    const editor = wrapper.find('[data-probe]').getDOMNode();
+    expect(activate).not.toHaveBeenCalled();
+    act(() => resize(390, 844)); wrapper.update();
+    expect(activate).toHaveBeenLastCalledWith(0);
+    expect(wrapper.find('[data-probe]').prop('data-mobile-assets-disabled')).toBe(true);
+    expect(wrapper.find('[data-probe]').getDOMNode()).toBe(editor);
+    // Another request to open an asset editor while already on mobile is also
+    // redirected, rather than leaving the user on a hidden tab.
+    act(() => { wrapper.setProps({activeTabIndex: 0}); });
+    activate.mockClear();
+    act(() => { wrapper.setProps({activeTabIndex: tab}); });
+    expect(activate).toHaveBeenCalledWith(0);
+    act(() => resize(1440, 1000)); wrapper.update();
+    activate.mockClear();
+    act(() => { wrapper.setProps({activeTabIndex: 0}); });
+    act(() => { wrapper.setProps({activeTabIndex: tab}); });
+    expect(activate).not.toHaveBeenCalled();
+    expect(wrapper.find('[data-probe]').prop('data-mobile-assets-disabled')).toBe(false);
+    wrapper.unmount();
 });

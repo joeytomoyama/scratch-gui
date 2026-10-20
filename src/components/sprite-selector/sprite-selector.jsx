@@ -1,11 +1,12 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, {useContext} from 'react';
 import {defineMessages, injectIntl, intlShape} from 'react-intl';
 
 import Box from '../box/box.jsx';
 import SpriteInfo from '../../containers/sprite-info.jsx';
 import SpriteList from './sprite-list.jsx';
 import ActionMenu from '../action-menu/action-menu.jsx';
+import EditorContext from '../editor-layout/editor-context';
 import {STAGE_DISPLAY_SIZES} from '../../lib/layout-constants';
 import {isRtl} from '@turbowarp/scratch-l10n';
 
@@ -41,6 +42,7 @@ const messages = defineMessages({
 });
 
 const SpriteSelectorComponent = function (props) {
+    const {mobile} = useContext(EditorContext);
     const {
         editingTarget,
         hoveredTarget,
@@ -117,6 +119,7 @@ const SpriteSelectorComponent = function (props) {
                 {stageSelector}
             </div>
             <ActionMenu
+                key={mobile ? 'mobile' : 'desktop'}
                 className={styles.addButton}
                 img={spriteIcon}
                 moreButtons={[
@@ -132,11 +135,11 @@ const SpriteSelectorComponent = function (props) {
                         title: intl.formatMessage(messages.addSpriteFromSurprise),
                         img: surpriseIcon,
                         onClick: onSurpriseSpriteClick // TODO need real function for this
-                    }, {
+                    }, ...(mobile ? [] : [{
                         title: intl.formatMessage(messages.addSpriteFromPaint),
                         img: paintIcon,
                         onClick: onPaintSpriteClick // TODO need real function for this
-                    }, {
+                    }]), {
                         title: intl.formatMessage(messages.addSpriteFromLibrary),
                         img: searchIcon,
                         onClick: onNewSpriteClick

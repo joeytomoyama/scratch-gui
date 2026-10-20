@@ -1,11 +1,12 @@
 import classNames from 'classnames';
 import omit from 'lodash.omit';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, {useContext} from 'react';
 import {defineMessages, intlShape, injectIntl, FormattedMessage} from 'react-intl';
 
 import Box from '../box/box.jsx';
 import ActionMenu from '../action-menu/action-menu.jsx';
+import EditorContext from '../editor-layout/editor-context';
 import styles from './stage-selector.css';
 import spriteStyles from '../sprite-selector-item/sprite-selector-item.css';
 import {isRtl} from '@turbowarp/scratch-l10n';
@@ -39,6 +40,7 @@ const messages = defineMessages({
 });
 
 const StageSelector = props => {
+    const {mobile} = useContext(EditorContext);
     const {
         containerRef,
         dragOver,
@@ -71,6 +73,7 @@ const StageSelector = props => {
             {...omit(componentProps, ['backdropCount'])}
         >
             <ActionMenu
+                key={mobile ? 'mobile' : 'desktop'}
                 className={styles.stageMenu}
                 mainButtonClassName={classNames(spriteStyles.spriteSelectorItem, styles.stageTile, {
                     [spriteStyles.isSelected]: selected
@@ -108,11 +111,11 @@ const StageSelector = props => {
                         img: surpriseIcon,
                         onClick: onSurpriseBackdropClick
 
-                    }, {
+                    }, ...(mobile ? [] : [{
                         title: intl.formatMessage(messages.addBackdropFromPaint),
                         img: paintIcon,
                         onClick: onEmptyBackdropClick
-                    }, {
+                    }]), {
                         title: intl.formatMessage(messages.addBackdropFromLibrary),
                         img: searchIcon,
                         onClick: onNewBackdropClick

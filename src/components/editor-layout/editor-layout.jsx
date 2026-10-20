@@ -35,7 +35,7 @@ const palette = open => window.dispatchEvent(new CustomEvent('classroom-palette-
 
 // One shell and one mounted editor for all widths. Changing panels never replaces
 // Blockly, the renderer, or the VM with separate mobile instances.
-const EditorLayout = ({children, vm, customStageSize, isFullScreen, onActivateTab}) => {
+const EditorLayout = ({children, vm, customStageSize, isFullScreen, activeTabIndex = 0, onActivateTab}) => {
     const [size, setSize] = useState(viewport);
     const [panel, setPanel] = useState('code');
     const [menuOpen, setMenuOpen] = useState(false);
@@ -77,6 +77,11 @@ const EditorLayout = ({children, vm, customStageSize, isFullScreen, onActivateTa
         // committing the shell's new geometry, including a hidden/reopened drawer.
         window.dispatchEvent(new Event('resize'));
     }, [mobile, panel, preview, drawerHeight]);
+    useLayoutEffect(() => {
+        // Asset editing stays on desktop. Also handle a resize while an asset
+        // tab is selected, or an indirect request from Blockly's context menu.
+        if (mobile && activeTabIndex !== 0) onActivateTab(0);
+    }, [mobile, activeTabIndex, onActivateTab]);
     useEffect(() => {
         if (panel !== 'code' || !mobile) palette(false);
     }, [panel, mobile]);
@@ -133,7 +138,7 @@ const EditorLayout = ({children, vm, customStageSize, isFullScreen, onActivateTa
                 '--code-height': `${geometry.codeHeight}px`,
                 '--preview-height': `${geometry.previewHeight}px`}}
         >
-            {children}
+            {typeof children === 'function' ? children(context) : children}
             {mobile && <React.Fragment>
                 {(menuOpen || panel === 'sprites' || panel === 'tutor') && <button
                     className={styles.scrim}
@@ -237,7 +242,8 @@ const EditorLayout = ({children, vm, customStageSize, isFullScreen, onActivateTa
         </div>
     </Context.Provider>);
 };
-EditorLayout.propTypes = {children: PropTypes.node,
+EditorLayout.propTypes = {children: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+    activeTabIndex: PropTypes.number,
     vm: PropTypes.object.isRequired,
     customStageSize: PropTypes.shape({width: PropTypes.number, height: PropTypes.number}).isRequired,
     isFullScreen: PropTypes.bool,

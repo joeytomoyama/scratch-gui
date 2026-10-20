@@ -554,3 +554,15 @@ at pickup within the palette, stable origins and successful subsequent drop.
   network/recording/auth/save contracts; typing switches the mobile mic to Send.
 - See `docs/RESPONSIVE_EDITOR.md` for integration points, checks and remaining
   real-device/native-picker verification. No swipe/tilt blocks or native app port.
+
+
+### 2026-10-20 — Simplify phone editing around supplied assets
+
+- On phones, expose Code only: omit Costume/Backdrop and Sound editing tabs and
+  blank Paint shortcuts. Keep desktop asset editors, loaded assets, asset import
+  and library actions, and costume/sound programming blocks.
+- Entering mobile with an asset tab selected returns to Code. Keep the workspace
+  mounted and preserve existing project content.
+- Use a 480 × 980 custom stage for current phone development checks, as requested.
+  This does not change a project's native size automatically when resizing the
+  browser or opening it on a phone.

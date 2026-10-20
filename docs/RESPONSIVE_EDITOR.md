@@ -9,9 +9,12 @@ The phone layout implements Figma **02 Workspace first** (134:643 / 156:458).
 The actual game renders above a resizable Code drawer. Hide collapses the preview;
 Expand opens the playing view. Code returns to the mounted workspace. Sprites and
 Tutor open bottom sheets; the project menu opens from the left. The Blocks button
-inside Code opens the existing category rail and palette. Costumes, sounds, sprite
-libraries, settings, file actions, and account controls retain their existing
-handlers. There is no hardcoded game art or demo caption.
+inside Code opens the existing category rail and palette. Costume/backdrop and
+sound editing tabs, including blank Paint shortcuts, are desktop-only. Mobile
+keeps the supplied assets and all costume/sound programming blocks. Switching to
+mobile while an asset editor is selected returns to Code without replacing the
+workspace. Sprite libraries, settings, file actions and account controls retain
+their existing handlers. There is no hardcoded game art or demo caption.
 
 ## Integration boundaries
 
@@ -40,6 +43,10 @@ handlers. There is no hardcoded game art or demo caption.
 ## Verification
 
 Run the frontend with `npm start` (port 8601 in this checkout).
+For the current phone development example, use
+`http://localhost:8601/editor.html?size=480x980` or set Advanced Settings → Custom
+Stage Size to **480 × 980**. This is a project/test setting, not a mobile viewport
+rule: opening an existing project on a phone preserves its saved dimensions.
 
 ```
 node node_modules/jest/bin/jest.js test/unit/util/classroom-editor-layout.test.jsx test/unit/util/responsive-block-palette.test.js test/unit/tutor/menu.test.jsx test/integration/responsive-palette.test.js --runInBand
