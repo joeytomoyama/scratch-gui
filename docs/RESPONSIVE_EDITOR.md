@@ -6,19 +6,15 @@ behavior. No device detection, React upgrade, UI framework migration, or runtime
 fork is required.
 
 The phone layout implements Figma **02 Workspace first** (134:643 / 156:458).
-The actual game renders above a resizable Code drawer. Hide collapses the
-preview; Expand opens the playing view. Code returns to the mounted workspace.
-Sprites and Tutor open bottom sheets; the project menu opens from the left. The
-Blocks button inside Code opens the existing category rail and palette.
-Costume/backdrop and sound editing tabs, including blank Paint shortcuts, are
-desktop-only. The phone drawer omits the redundant Code tab header, reserving
-only the drag handle above the workspace. The drawer shares the workspace theme
-color and its outer outline is the only border; the embedded workspace has no
-inner frame. Mobile keeps the supplied assets and all costume/sound programming
-blocks. Switching to mobile while an asset editor is selected returns to Code
-without replacing the workspace. Sprite libraries, settings, file actions and
-account controls retain their existing handlers. There is no hardcoded game art
-or demo caption.
+The actual game renders above a resizable Code drawer. Hide collapses the preview;
+Expand opens the playing view. Code returns to the mounted workspace. Sprites and
+Tutor open bottom sheets; the project menu opens from the left. The Blocks button
+inside Code opens the existing category rail and palette. Costume/backdrop and
+sound editing tabs, including blank Paint shortcuts, are desktop-only. The phone drawer omits the redundant Code tab header, reserving only the drag
+handle above the workspace. Mobile keeps the supplied assets and all costume/sound programming blocks. Switching to
+mobile while an asset editor is selected returns to Code without replacing the
+workspace. Sprite libraries, settings, file actions and account controls retain
+their existing handlers. There is no hardcoded game art or demo caption.
 
 ## Integration boundaries
 

@@ -46,7 +46,6 @@ const applyGuiColors = theme => {
     }
 
     const blockColors = theme.getBlockColors();
-    doc.style.setProperty('--editor-workspace-background', blockColors.workspace);
     doc.style.setProperty('--editorTheme3-blockText', blockColors.text);
     doc.style.setProperty('--editorTheme3-inputColor', blockColors.textField);
     doc.style.setProperty('--editorTheme3-inputColor-text', blockColors.textFieldText);
