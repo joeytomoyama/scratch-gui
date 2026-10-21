@@ -42,7 +42,7 @@
     z-index: 12;
     border: 1px solid $ui-black-transparent;
     border-radius: 14px 14px 0 0;
-    background: $ui-white;
+    background: var(--editor-workspace-background, $ui-white);
     overflow: hidden;
     transition: transform 180ms ease-out;
 }

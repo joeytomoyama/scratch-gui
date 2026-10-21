@@ -137,6 +137,12 @@
 }
 
 
+/* The phone drawer owns the outline and clipping; the workspace is its surface. */
+.blocks[data-phone-palette="true"] :global(.injectionDiv) {
+    border: 0;
+    border-radius: 0;
+}
+
 /* Phone palettes overlay the full workspace; opening them never shifts a block drag. */
 .blocks[data-phone-palette="true"] :global(.blocklyToolboxDiv) { height: 100% !important; z-index: 5; background: $ui-white; overflow-y: auto; overscroll-behavior: contain; }
 .blocks[data-phone-palette="true"] :global(.blocklyFlyout) { z-index: 4; }
