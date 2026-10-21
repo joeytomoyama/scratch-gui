@@ -10,8 +10,8 @@ The actual game renders above a resizable Code drawer. Hide collapses the previe
 Expand opens the playing view. Code returns to the mounted workspace. Sprites and
 Tutor open bottom sheets; the project menu opens from the left. The Blocks button
 inside Code opens the existing category rail and palette. Costume/backdrop and
-sound editing tabs, including blank Paint shortcuts, are desktop-only. Mobile
-keeps the supplied assets and all costume/sound programming blocks. Switching to
+sound editing tabs, including blank Paint shortcuts, are desktop-only. The phone drawer omits the redundant Code tab header, reserving only the drag
+handle above the workspace. Mobile keeps the supplied assets and all costume/sound programming blocks. Switching to
 mobile while an asset editor is selected returns to Code without replacing the
 workspace. Sprite libraries, settings, file actions and account controls retain
 their existing handlers. There is no hardcoded game art or demo caption.
