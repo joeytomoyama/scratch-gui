@@ -2,6 +2,7 @@ import TutorParts from './tutor-parts.jsx';
 import React from 'react';
 import {createPortal} from 'react-dom';
 import EditorContext from '../editor-layout/editor-context';
+import SheetTransition from '../editor-layout/sheet-transition.jsx';
 import PropTypes from 'prop-types';
 import {JsonView, collapseAllNested, defaultStyles} from 'react-json-view-lite';
 import jsonStyles from 'react-json-view-lite/dist/index.css';
@@ -15,6 +16,7 @@ import {VoiceRecorder} from '../../lib/tutor/voice-recorder';
 import {classroomLocale} from '../../lib/classroom-locales';
 import microphoneIcon from '../editor-layout/icons/microphone.svg';
 import sendIcon from '../editor-layout/icons/send.svg';
+import retryIcon from '../editor-layout/icons/retry.svg';
 import styles from './tutor-menu.css';
 import toolbarStyles from '../menu-bar/toolbar-button.css';
 
@@ -103,7 +105,9 @@ class TutorMenu extends React.Component {
     close () {
         if (this.context.mobile) this.context.setPanel(null);
         this.cancelRecording?.(); this.stopAudio();
-        this.setState({open: false}, () => this.trigger?.focus({preventScroll: true}));
+        this.setState({open: false}, () => {
+            if (!this.context.mobile) this.trigger?.focus({preventScroll: true});
+        });
     }
     updateExchange (id, changes) {
         this.setState(state => ({exchanges: state.exchanges.map(exchange =>
@@ -203,12 +207,15 @@ class TutorMenu extends React.Component {
         }
     }
     renderExchange (exchange) {
+        const mobile = this.context.mobile;
+        const canRetry = mobile && this.tutor?.pending && exchange.id === this.activeExchange &&
+            ['error', 'failed', 'processing', 'acknowledged'].includes(exchange.status);
         const statusText = {
             transcribing: 'Transcribing your question…',
             waiting: 'Waiting for tutor…',
             acknowledged: 'Request received. No AI provider is configured yet.',
-            processing: 'Analysis is pending. Retry this request to check its result.',
-            failed: 'The tutor request failed. Retrying this request checks its status without sending it again.'
+            processing: mobile ? 'The tutor is still working…' : 'Analysis is pending. Retry this request to check its result.',
+            failed: mobile ? 'The tutor request failed.' : 'The tutor request failed. Retrying this request checks its status without sending it again.'
         };
         return (<article
             className={styles.exchange}
@@ -217,32 +224,47 @@ class TutorMenu extends React.Component {
             <div className={`${styles.message} ${styles.student}`}>
                 <strong>{exchange.voice ? 'You · voice' : 'You'}</strong><p>{exchange.question || (exchange.voice ? 'Voice question' : 'Suggest a next step.')}</p>
             </div>
-            <div className={`${styles.message} ${styles.tutor}`}>
-                <strong>Tutor</strong>
-                {exchange.feedback?.text && (Array.isArray(exchange.feedback.parts) ?
-                    <TutorParts
-                        feedback={exchange.feedback}
-                        capture={exchange.previews}
-                    /> : <p>{exchange.feedback.text}</p>)}
-                {exchange.error ? <p role="alert">{exchange.error}</p> :
-                    statusText[exchange.status] ? <p>{statusText[exchange.status]}</p> :
-                        !exchange.feedback?.text && <p>The tutor returned no text. You can inspect the JSON.</p>}
-                {exchange.audioURL && <audio
-                    className={styles.audio}
-                    controls
-                    preload="none"
-                    src={exchange.audioURL}
-                    aria-label="Spoken tutor reply"
-                    ref={node => {
-                        if (node) this.players.set(exchange.id, node);
-                        else this.players.delete(exchange.id);
-                    }}
-                    onPlay={event => this.players.forEach(player => {
-                        if (player !== event.target) player.pause();
-                    })}
-                    onError={() => this.updateExchange(exchange.id, {audioError: 'Audio playback failed. You can still read the tutor’s answer.'})}
-                />}
-                {exchange.audioError && <p role="status">{exchange.audioError}</p>}
+            <div className={styles.replyRow}>
+                <div className={`${styles.message} ${styles.tutor}`}>
+                    <strong>Tutor</strong>
+                    {exchange.feedback?.text && (Array.isArray(exchange.feedback.parts) ?
+                        <TutorParts
+                            feedback={exchange.feedback}
+                            capture={exchange.previews}
+                        /> : <p>{exchange.feedback.text}</p>)}
+                    {exchange.error ? <p role="alert">{exchange.error}</p> :
+                        statusText[exchange.status] ? <p>{statusText[exchange.status]}</p> :
+                            !exchange.feedback?.text && <p>The tutor returned no text. You can inspect the JSON.</p>}
+                    {exchange.audioURL && <audio
+                        className={styles.audio}
+                        controls
+                        preload="none"
+                        src={exchange.audioURL}
+                        aria-label="Spoken tutor reply"
+                        ref={node => {
+                            if (node) this.players.set(exchange.id, node);
+                            else this.players.delete(exchange.id);
+                        }}
+                        onPlay={event => this.players.forEach(player => {
+                            if (player !== event.target) player.pause();
+                        })}
+                        onError={() => this.updateExchange(exchange.id, {audioError: 'Audio playback failed. You can still read the tutor’s answer.'})}
+                    />}
+                    {exchange.audioError && <p role="status">{exchange.audioError}</p>}
+                </div>
+                {canRetry && <button
+                    className={styles.retryButton}
+                    type="button"
+                    aria-label={exchange.status === 'processing' ? 'Check tutor reply' : 'Retry request'}
+                    title={exchange.status === 'processing' ? 'Check tutor reply' : 'Retry request'}
+                    disabled={this.state.busy || !this.props.ready || this.state.recording !== 'idle'}
+                    onClick={() => this.ask(true)}
+                >
+                    <img
+                        src={retryIcon}
+                        alt=""
+                    />
+                </button>}
             </div>
         </article>);
     }
@@ -281,7 +303,9 @@ class TutorMenu extends React.Component {
         </div>);
     }
     renderPanel (panel) {
-        return this.context.mobile ? createPortal(panel, document.body) : panel;
+        return this.context.mobile ? createPortal(
+            <SheetTransition open={this.isOpen()}>{panel}</SheetTransition>, document.body
+        ) : panel;
     }
     render () {
         const s = this.state;
@@ -308,7 +332,7 @@ class TutorMenu extends React.Component {
                 }}
                 onClick={() => (s.open ? this.close() : this.setState({open: true}))}
             >Ask Tutor</button>
-            {open && this.renderPanel(<section
+            {(open || mobile) && this.renderPanel(<section
                 id="tutor-chat"
                 data-mobile-tutor={mobile}
                 data-has-message={Boolean(s.question.trim())}
@@ -355,7 +379,7 @@ class TutorMenu extends React.Component {
                     }}
                 >
                     {s.exchanges.length ? s.exchanges.map(exchange => this.renderExchange(exchange)) : (
-                        <p className={styles.empty}>Ask about your game, or send without a question for a next-step hint.</p>
+                        !mobile && <p className={styles.empty}>Ask about your game, or send without a question for a next-step hint.</p>
                     )}
                 </div>
                 <form
@@ -366,7 +390,7 @@ class TutorMenu extends React.Component {
                 >
                     {!s.user && <p>Sign in using Account to ask the tutor.</p>}
                     <div className={styles.messageRow}>
-                        <label className={styles.question}>Your message (optional)
+                        <label className={styles.question}><span className={styles.fieldLabel}>Your message (optional)</span>
                             <textarea
                                 maxLength={2000}
                                 rows={2}
@@ -429,18 +453,13 @@ class TutorMenu extends React.Component {
                             >{sendLabel}</Button>
                         </div>
                     </div>
-                    <p className={styles.voiceNotice}>{this.recorder?.supported ?
+                    {(!mobile || s.recording !== 'idle') && <p className={styles.voiceNotice}>{this.recorder?.supported ?
                         'Hold to record. Release to send to Deepgram (up to 60 seconds).' :
-                        'Voice recording is unavailable in this browser. You can type instead.'}</p>
-                    {mobile && !s.question.trim() && <button
-                        type="submit"
-                        className={styles.hintButton}
-                        disabled={!this.tutor || !this.props.ready || s.busy || s.recording !== 'idle'}
-                    >Get a next-step hint</button>}
+                        'Voice recording is unavailable in this browser. You can type instead.'}</p>}
                     {s.voiceError && <p role="alert">{s.voiceError}</p>}
                     {s.recording !== 'idle' && <p role="status">{s.recording === 'permission' ?
                         'Allow microphone access, then hold again if needed.' : 'Recording… Release to send.'}</p>}
-                    {this.tutor?.pending && latest?.status !== 'complete' && <button
+                    {!mobile && this.tutor?.pending && latest?.status !== 'complete' && <button
                         className={styles.actionButton}
                         type="button"
                         disabled={s.busy || !this.props.ready}

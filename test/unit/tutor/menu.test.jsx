@@ -1,6 +1,7 @@
 /** @jest-environment jsdom */
 import React from 'react';
 import {shallow, mount} from 'enzyme';
+import {act} from 'react-dom/test-utils';
 import {JsonView} from 'react-json-view-lite';
 import {EventEmitter} from 'events';
 import {randomUUID} from 'crypto';
@@ -453,6 +454,7 @@ test('structured feedback renders inline chips while preserving the JSON respons
 });
 
 test('mobile sheet lives outside the menu, preserves drafts, and cancels recording on panel changes', () => {
+    jest.useFakeTimers();
     const {api, vm} = setup({mounted: true});
     wrapper.unmount();
     const setPanel = jest.fn();
@@ -469,7 +471,11 @@ test('mobile sheet lives outside the menu, preserves drafts, and cancels recordi
     jest.spyOn(instance.recorder, 'start').mockImplementation(() => {});
     const cancel = jest.spyOn(instance.recorder, 'cancel').mockImplementation(() => {});
     instance.startRecording();
-    wrapper.setProps({panel: 'code'});
+    act(() => { wrapper.setProps({panel: 'code'}); });
+    expect(document.getElementById('tutor-chat').getAttribute('data-sheet-state')).toBe('closing');
+    expect(document.getElementById('tutor-chat').getAttribute('aria-hidden')).toBe('true');
+    act(() => { jest.advanceTimersByTime(180); });
+    wrapper.update();
     expect(document.getElementById('tutor-chat')).toBe(null);
     expect(instance.holding).toBe(false);
     expect(cancel).toHaveBeenCalledTimes(1);
@@ -477,4 +483,39 @@ test('mobile sheet lives outside the menu, preserves drafts, and cancels recordi
     expect(wrapper.find('textarea').prop('value')).toBe('Keep my draft');
     expect(api.ask).not.toHaveBeenCalled();
     expect(vm.toJSON).not.toHaveBeenCalled();
+    jest.useRealTimers();
+});
+
+
+test.each(['network', 'processing'])('mobile inline retry preserves the captured request and draft after %s', async failure => {
+    const {api, vm} = setup({mounted: true});
+    wrapper.unmount();
+    const MobileView = () => (<EditorContext.Provider value={{mobile: true, panel: 'tutor', setPanel: jest.fn(), viewportHeight: 844}}>
+        <TutorMenu vm={vm} ready locale="en" />
+    </EditorContext.Provider>);
+    act(() => { wrapper = mount(<MobileView />, {attachTo: container}); });
+    const instance = wrapper.find(TutorMenu).instance();
+    vm.toJSON.mockClear();
+    expect(wrapper.text()).not.toContain('Get a next-step hint');
+    expect(wrapper.text()).not.toContain('Hold to record.');
+    expect(wrapper.find('[aria-label="Retry request"]')).toHaveLength(0);
+    if (failure === 'network') api.ask.mockRejectedValueOnce(Error('Could not reach tutor.'));
+    else api.ask.mockImplementationOnce(async body => ({requestId: body.requestId, status: 'processing'}));
+    act(() => { wrapper.find('textarea').simulate('change', {target: {value: 'Original question'}}); });
+    await act(async () => { await instance.ask(); }); wrapper.update();
+    expect(wrapper.text()).not.toContain('Retry same request');
+    const label = failure === 'network' ? 'Retry request' : 'Check tutor reply';
+    const retry = wrapper.find(`button[aria-label="${label}"]`);
+    expect(retry).toHaveLength(1);
+    expect(retry.text()).toBe('');
+    expect(retry.closest('article').find('[role="alert"]')).toHaveLength(failure === 'network' ? 1 : 0);
+    act(() => { wrapper.find('textarea').simulate('change', {target: {value: 'Draft for later'}}); });
+    await act(async () => { wrapper.find(`button[aria-label="${label}"]`).simulate('click'); }); wrapper.update();
+    expect(api.ask).toHaveBeenCalledTimes(2);
+    expect(api.ask.mock.calls[1][0]).toEqual(api.ask.mock.calls[0][0]);
+    expect(vm.toJSON).toHaveBeenCalledTimes(1);
+    expect(instance.state.exchanges).toHaveLength(1);
+    expect(instance.state.question).toBe('Draft for later');
+    expect(wrapper.find('[aria-label="Retry request"]')).toHaveLength(0);
+    expect(wrapper.find('[aria-label="Check tutor reply"]')).toHaveLength(0);
 });

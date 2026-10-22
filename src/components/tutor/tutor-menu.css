@@ -266,7 +266,7 @@
 .root[data-mobile-tutor="true"] { margin: 0; }
 .root[data-mobile-tutor="true"] > button { display: none; }
 .panel[data-mobile-tutor="true"] { visibility: visible; pointer-events: auto; inset-inline: 0; bottom: calc(72px + env(safe-area-inset-bottom, 0px)); width: 100vw; max-width: none; height: min(560px, calc(var(--editor-height, 100dvh) - 140px)); border-radius: 20px 20px 0 0; font-weight: normal; }
-.panel[data-mobile-tutor="true"] .header { min-height: 56px; padding: 8px 16px; }
+.panel[data-mobile-tutor="true"] .header { min-height: 56px; padding: 8px 16px; border-bottom: 0; }
 .panel[data-mobile-tutor="true"] .header button { min-width: 44px; min-height: 44px; }
 .panel[data-mobile-tutor="true"] .composer { position: relative; padding: 10px 16px 12px; }
 .panel[data-mobile-tutor="true"] .question { min-width: 0; }
@@ -276,10 +276,25 @@
 .panel[data-mobile-tutor="true"][data-has-message="false"] .send-button, .panel[data-mobile-tutor="true"][data-has-message="true"] .microphone { display: none; }
 .panel[data-mobile-tutor="true"] .voice-notice { font-size: 10px; padding-inline-end: 52px; }
 
-.hint-button { border: 0; background: transparent; color: $text-primary; font: inherit; font-size: 11px; padding: 4px 0; text-decoration: underline; cursor: pointer; }
 .panel[data-mobile-tutor="true"] .send-button img { width: 24px; height: 24px; }
 
 .microphone img, .send-button img { filter: $filter-icon-gray; }
 
 .message-row { display: contents; }
 .panel[data-mobile-tutor="true"] .message-row { display: grid; grid-template-columns: minmax(0, 1fr) 44px; gap: 8px; align-items: end; }
+
+.reply-row { display: contents; }
+.panel[data-mobile-tutor="true"] .reply-row { display: flex; align-items: end; gap: 4px; }
+.panel[data-mobile-tutor="true"] .reply-row .tutor { min-width: 0; margin-inline-end: 0; }
+.retry-button {
+    display: flex; align-items: center; justify-content: center; flex: 0 0 44px;
+    width: 44px; height: 44px; padding: 12px; border: 0; border-radius: 10px;
+    background: transparent; cursor: pointer;
+}
+.retry-button img { width: 20px; height: 20px; filter: $filter-icon-gray; }
+.retry-button:hover { background: $ui-tertiary; }
+.retry-button:active { transform: scale(.96); }
+.panel[data-mobile-tutor="true"] .field-label {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}

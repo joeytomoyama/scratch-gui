@@ -4,6 +4,7 @@ import {mount} from 'enzyme';
 import {act} from 'react-dom/test-utils';
 import EditorLayout, {EditorPanel} from '../../../src/components/editor-layout/editor-layout';
 import {editorGeometry, fitStage} from '../../../src/lib/editor-layout';
+import SheetTransition from '../../../src/components/editor-layout/sheet-transition';
 
 jest.mock('../../../src/containers/controls.jsx', () => () => null);
 
@@ -51,8 +52,9 @@ test('Code/Play, sheets, menu, preview collapse and desktop resize keep one moun
     };
     let wrapper;
     act(() => { wrapper = mount(<EditorLayout vm={{}} customStageSize={{width: 360, height: 640}}
-        onActivateTab={activate}><EditorPanel name="menu" /><EditorPanel name="targets" /><Probe /></EditorLayout>); });
+        onActivateTab={activate}><EditorPanel name="menu" /><EditorPanel name="targets"><input data-sprite-draft defaultValue="Sprite1" /></EditorPanel><Probe /></EditorLayout>); });
     const probe = wrapper.find('[data-probe]').getDOMNode();
+    const spriteDraft = wrapper.find('[data-sprite-draft]').getDOMNode();
     const clickNav = index => act(() => { wrapper.find('nav button').at(index).simulate('click'); });
     clickNav(0); wrapper.update();
     expect(wrapper.find('[data-editor-shell]').prop('data-panel')).toBe('play');
@@ -69,6 +71,7 @@ test('Code/Play, sheets, menu, preview collapse and desktop resize keep one moun
     act(() => resize(1440, 1000)); wrapper.update();
     expect(wrapper.find('[data-editor-shell]').prop('data-mobile')).toBe(false);
     expect(wrapper.find('[data-probe]').getDOMNode()).toBe(probe);
+    expect(wrapper.find('[data-sprite-draft]').getDOMNode()).toBe(spriteDraft);
     expect(mounts).toHaveBeenCalledTimes(1);
     expect(disposals).not.toHaveBeenCalled();
     wrapper.unmount();
@@ -109,4 +112,33 @@ test.each([1, 2])('return asset tab %s to Code on mobile without remounting the 
     expect(activate).not.toHaveBeenCalled();
     expect(wrapper.find('[data-probe]').prop('data-mobile-assets-disabled')).toBe(false);
     wrapper.unmount();
+});
+
+
+test.each([false, true])('sheets disable closing content and cancel disposal on rapid reopening (retained: %s)', keepMounted => {
+    jest.useFakeTimers();
+    const mounts = jest.fn(); const disposals = jest.fn();
+    const Probe = () => {
+        useEffect(() => { mounts(); return disposals; }, []);
+        return <input defaultValue="draft" />;
+    };
+    let wrapper;
+    act(() => { wrapper = mount(<SheetTransition open keepMounted={keepMounted}><section><Probe /></section></SheetTransition>); });
+    const input = wrapper.find('input').getDOMNode();
+    act(() => { wrapper.setProps({open: false}); }); wrapper.update();
+    expect(wrapper.find('section').prop('data-sheet-state')).toBe('closing');
+    expect(wrapper.find('section').prop('aria-hidden')).toBe(true);
+    expect(wrapper.find('section').prop('inert')).toBe('');
+    act(() => { jest.advanceTimersByTime(90); wrapper.setProps({open: true}); });
+    act(() => { jest.advanceTimersByTime(180); }); wrapper.update();
+    expect(wrapper.find('input').getDOMNode()).toBe(input);
+    expect(mounts).toHaveBeenCalledTimes(1);
+    expect(disposals).not.toHaveBeenCalled();
+    expect(wrapper.find('section').prop('data-sheet-state')).toBe('open');
+    expect(wrapper.find('section').prop('inert')).toBe(null);
+    act(() => { wrapper.setProps({open: false}); });
+    act(() => { jest.advanceTimersByTime(180); }); wrapper.update();
+    expect(wrapper.find('input')).toHaveLength(keepMounted ? 1 : 0);
+    wrapper.unmount();
+    jest.useRealTimers();
 });

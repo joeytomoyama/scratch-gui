@@ -3,7 +3,7 @@ Phosphor Icons (MIT). LICENSE is retained in this directory.
 Most SVGs were exported from the approved Figma editor designs in file
 `dmVFMsESgTx3IbUBpjf0Hi` (desktop 4:2, mobile 134:643 / 156:458).
 Supplemental regular icons (paint-brush, speaker-high, microphone,
-paper-plane-tilt, x, user-circle, floppy-disk) come from
+paper-plane-tilt, x, user-circle, floppy-disk, arrow-clockwise) come from
 https://github.com/phosphor-icons/core/tree/main/assets/regular .
 
 `blocks.svg` retains the design's multicolor category treatment.

@@ -61,7 +61,7 @@
     padding: 0; background: $ui-white; border-radius: 20px 20px 0 0;
     overflow: hidden; z-index: 41; flex-direction: column;
 }
-.shell[data-mobile="true"]:not([data-panel="sprites"]) [data-editor-region="targets"] {
+.shell[data-mobile="true"] [data-editor-region="targets"][data-sheet-state="closed"] {
     display: none;
 }
 .shell[data-mobile="true"] [data-editor-region="menu"] {

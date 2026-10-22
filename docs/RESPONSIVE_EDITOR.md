@@ -22,6 +22,14 @@ their existing handlers. There is no hardcoded game art or demo caption.
   navigation and responsive CSS. Focus changes use preventScroll; the mobile
   shell clips hidden panels so focusing a sheet cannot scroll navigation away.
   Editor context carries display geometry only.
+- `SheetTransition` gives only Sprites and Tutor matching 180ms entrance/exit
+  animations. Closing sheets are immediately inert and hidden from assistive
+  technology, then disposed (Tutor) or hidden while mounted (Sprites). Reopening
+  cancels disposal. Reduced-motion preferences suppress the movement. Code's
+  existing animation, resize handle and workspace behavior remain unchanged.
+- Mobile Sprites and Tutor omit their title dividers. Mobile chat omits idle
+  instructions and the extra hint/retry text links, retaining recording notices,
+  errors, accessible field labels, auth prompts and the JSON inspector.
 - `src/lib/editor-layout.js` calculates uniform stage scaling from native project
   dimensions. Neither changing panels nor resizing changes VM stage dimensions.
 - Blockly, the VM and the renderer remain mounted across layouts and Code/Play.
@@ -35,7 +43,9 @@ their existing handlers. There is no hardcoded game art or demo caption.
   chat. Existing transcripts, bounded session context, auth, intentional Ask,
   retries, Deepgram recording, and audio transport remain in use. Leaving the
   sheet cancels an active recording. Empty composers show a microphone; typing
-  reveals Send. A small next-step hint action retains optional-question support.
+  reveals Send. Blank messages still request next-step guidance via Enter, without an extra hint
+  link. On mobile, failed exchanges have an icon-only retry beside their reply;
+  pending replies use the same control to check status with the original request.
 - Phosphor SVGs are checked in with their MIT license and provenance in
   `src/components/editor-layout/icons/`. Original add-sprite, add-backdrop and
   extension icons are retained. Game assets still belong to the loaded project.

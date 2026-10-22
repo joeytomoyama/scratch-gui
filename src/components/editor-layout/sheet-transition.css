@@ -1,0 +1,28 @@
+.sheet[data-sheet-state="open"] {
+    animation: sheet-enter 180ms ease-out backwards;
+}
+
+.sheet[data-sheet-state="closing"] {
+    animation: sheet-exit 180ms ease-in both;
+    pointer-events: none;
+}
+
+.sheet[data-sheet-state="closed"] {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+@keyframes sheet-enter {
+    from { transform: translateY(calc(100% + 16px)); }
+    to { transform: translateY(0); }
+}
+
+@keyframes sheet-exit {
+    from { transform: translateY(0); }
+    to { transform: translateY(calc(100% + 16px)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sheet[data-sheet-state] { animation: none; }
+    .sheet[data-sheet-state="closing"] { visibility: hidden; }
+}

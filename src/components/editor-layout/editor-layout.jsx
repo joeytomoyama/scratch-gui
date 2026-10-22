@@ -5,11 +5,12 @@ import Controls from '../../containers/controls.jsx';
 import {editorGeometry, MOBILE_EDITOR_MAX_WIDTH, MIN_CODE_HEIGHT} from '../../lib/editor-layout';
 import Context from './editor-context';
 import EditorIcon from './editor-icon.jsx';
+import SheetTransition from './sheet-transition.jsx';
 import styles from './editor-layout.css';
 
 export const EditorPanel = ({name, children}) => {
     const layout = useContext(Context);
-    return (<div
+    const panel = (<div
         data-editor-region={name}
         role={layout.mobile ? 'dialog' : null}
         aria-label={name === 'menu' ? 'Project menu' : 'Sprites'}
@@ -26,6 +27,11 @@ export const EditorPanel = ({name, children}) => {
         </header>}
         {children}
     </div>);
+    return (<SheetTransition
+        enabled={layout.mobile && name === 'targets'}
+        open={!layout.mobile || layout.panel === 'sprites'}
+        keepMounted
+    >{panel}</SheetTransition>);
 };
 EditorPanel.propTypes = {name: PropTypes.string.isRequired, children: PropTypes.node};
 

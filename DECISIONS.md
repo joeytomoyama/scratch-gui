@@ -566,3 +566,17 @@ at pickup within the palette, stable origins and successful subsequent drop.
 - Use a 480 × 980 custom stage for current phone development checks, as requested.
   This does not change a project's native size automatically when resizing the
   browser or opening it on a phone.
+
+
+### 2026-10-22 — Polish mobile Sprites and Tutor sheets
+
+- Share short enter/exit animations between Sprites and Tutor, with immediate
+  inert/ARIA-hidden closing state, disposal cancellation on reopen and reduced
+  motion support. Keep Code's animation, geometry and resizing unchanged.
+- Remove the mobile sheets' title dividers and mobile chat's extra hint/retry
+  text controls. Keep accessible labels, actual errors and active voice notices.
+- Retry uses a Phosphor refresh icon beside the latest failed reply. Pending
+  replies can use the same icon to check status; reuse the captured request and
+  language, preserve later drafts, and never automatically resend or call a model.
+- Desktop tutor controls, optional blank questions (Enter), JSON inspection,
+  transcripts and recording cancellation remain supported.
