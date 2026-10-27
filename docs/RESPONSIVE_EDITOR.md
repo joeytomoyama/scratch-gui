@@ -53,10 +53,16 @@ their existing handlers. There is no hardcoded game art or demo caption.
 ## Verification
 
 Run the frontend with `npm start` (port 8601 in this checkout).
-For the current phone development example, use
-`http://localhost:8601/editor.html?size=480x980` or set Advanced Settings → Custom
-Stage Size to **480 × 980**. This is a project/test setting, not a mobile viewport
-rule: opening an existing project on a phone preserves its saved dimensions.
+Choose **Advanced Settings → Game resolution → Mobile (360 × 640)** for a 9:16
+portrait game, or **Default (480 × 360)** for the standard 4:3 landscape stage.
+These are the only selectable resolutions; the width/height inputs are removed.
+The existing **Store settings in project** action retains its save/load behavior.
+For a local portrait preview, use `http://localhost:8601/editor.html?size=360x640`.
+Unsupported `size` URL dimensions fall back to Default. Imported projects may
+retain other native dimensions for compatibility; opening settings does not
+resize them, and its placeholder prompts an explicit preset selection.
+This is a game setting, not a viewport rule: resizing the browser never chooses
+Mobile automatically.
 
 ```
 node node_modules/jest/bin/jest.js test/unit/util/classroom-editor-layout.test.jsx test/unit/util/responsive-block-palette.test.js test/unit/tutor/menu.test.jsx test/integration/responsive-palette.test.js --runInBand

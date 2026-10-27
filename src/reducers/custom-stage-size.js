@@ -1,3 +1,5 @@
+import {stageResolutions, stageResolutionForSize} from '../lib/stage-resolutions';
+
 const SET_CUSTOM_STAGE_SIZE = 'tw/custom-stage-size/SET';
 
 const getDimensions = () => {
@@ -22,18 +24,11 @@ const getDimensions = () => {
         return null;
     }
 
-    const width = Math.max(0, Math.min(4096, +widthText));
-    const height = Math.max(0, Math.min(4096, +heightText));
-    return {
-        width,
-        height
-    };
+    const id = stageResolutionForSize(+widthText, +heightText);
+    return id ? stageResolutions[id] : null;
 };
 
-const defaultStageSize = {
-    width: 480,
-    height: 360
-};
+const defaultStageSize = stageResolutions.default;
 
 const initialState = getDimensions() || defaultStageSize;
 

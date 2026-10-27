@@ -6,16 +6,13 @@ import bindAll from 'lodash.bindall';
 import Box from '../box/box.jsx';
 import Modal from '../../containers/modal.jsx';
 import FancyCheckbox from '../tw-fancy-checkbox/checkbox.jsx';
-import Input from '../forms/input.jsx';
-import BufferedInputHOC from '../forms/buffered-input-hoc.jsx';
 import DocumentationLink from '../tw-documentation-link/documentation-link.jsx';
 import styles from './settings-modal.css';
 import helpIcon from './help-icon.svg';
 import {APP_NAME} from '../../lib/brand.js';
+import {stageResolutionForSize} from '../../lib/stage-resolutions';
 
 /* eslint-disable react/no-multi-comp */
-
-const BufferedInput = BufferedInputHOC(Input);
 
 const messages = defineMessages({
     title: {
@@ -27,6 +24,21 @@ const messages = defineMessages({
         defaultMessage: 'Click for help',
         description: 'Hover text of help icon in settings',
         id: 'tw.settingsModal.help'
+    },
+    defaultResolution: {
+        defaultMessage: 'Default (480 × 360)',
+        description: 'Default landscape game resolution',
+        id: 'gui.stageResolution.default'
+    },
+    mobileResolution: {
+        defaultMessage: 'Mobile (360 × 640)',
+        description: 'Mobile portrait game resolution',
+        id: 'gui.stageResolution.mobile'
+    },
+    chooseResolution: {
+        defaultMessage: 'Choose resolution',
+        description: 'Placeholder for an imported project with a legacy resolution',
+        id: 'gui.stageResolution.choose'
     }
 });
 
@@ -326,72 +338,53 @@ const DisableCompiler = props => (
 );
 
 const CustomStageSize = ({
-    customStageSizeEnabled,
+    intl,
     stageWidth,
-    onStageWidthChange,
     stageHeight,
-    onStageHeightChange
+    onStageResolutionChange
 }) => (
     <Setting
-        active={customStageSizeEnabled}
+        active={stageResolutionForSize(stageWidth, stageHeight) === 'mobile'}
         primary={(
-            <div className={classNames(styles.label, styles.customStageSize)}>
+            <label className={styles.resolution}>
                 <FormattedMessage
-                    defaultMessage="Custom Stage Size:"
-                    description="Custom Stage Size option"
-                    id="tw.settingsModal.customStageSize"
+                    defaultMessage="Game resolution"
+                    description="Game resolution setting label"
+                    id="gui.stageResolution.label"
                 />
-                <BufferedInput
-                    value={stageWidth}
-                    onSubmit={onStageWidthChange}
-                    className={styles.customStageSizeInput}
-                    type="number"
-                    min="0"
-                    max="1024"
-                    step="1"
-                />
-                <span>{'×'}</span>
-                <BufferedInput
-                    value={stageHeight}
-                    onSubmit={onStageHeightChange}
-                    className={styles.customStageSizeInput}
-                    type="number"
-                    min="0"
-                    max="1024"
-                    step="1"
-                />
-            </div>
+                <select
+                    className={styles.resolutionSelect}
+                    value={stageResolutionForSize(stageWidth, stageHeight)}
+                    onChange={onStageResolutionChange}
+                >
+                    {!stageResolutionForSize(stageWidth, stageHeight) && (
+                        <option
+                            value=""
+                            disabled
+                            hidden
+                        >
+                            {intl.formatMessage(messages.chooseResolution)}
+                        </option>
+                    )}
+                    <option value="default">{intl.formatMessage(messages.defaultResolution)}</option>
+                    <option value="mobile">{intl.formatMessage(messages.mobileResolution)}</option>
+                </select>
+            </label>
         )}
-        secondary={
-            (stageWidth >= 1000 || stageHeight >= 1000) && (
-                <div className={styles.warning}>
-                    <FormattedMessage
-                        // eslint-disable-next-line max-len
-                        defaultMessage="Using a custom stage size this large is not recommended! Instead, use a lower size with the same aspect ratio and let fullscreen mode upscale it to match the user's display."
-                        description="Warning about using stages that are too large in settings modal"
-                        id="tw.settingsModal.largeStageWarning"
-                    />
-                    <LearnMore slug="custom-stage-size" />
-                </div>
-            )
-        }
         help={(
             <FormattedMessage
-                // eslint-disable-next-line max-len
-                defaultMessage="Changes the size of the Scratch stage from 480x360 to something else. Try 640x360 to make the stage widescreen. Very few projects will handle this properly."
-                description="Custom Stage Size option"
-                id="tw.settingsModal.customStageSizeHelp"
+                defaultMessage="Default is landscape (4:3). Mobile is portrait (9:16)."
+                description="Explanation of the two game resolution presets"
+                id="gui.stageResolution.help"
             />
         )}
-        slug="custom-stage-size"
     />
 );
 CustomStageSize.propTypes = {
-    customStageSizeEnabled: PropTypes.bool,
+    intl: intlShape,
     stageWidth: PropTypes.number,
-    onStageWidthChange: PropTypes.func,
     stageHeight: PropTypes.number,
-    onStageHeightChange: PropTypes.func
+    onStageResolutionChange: PropTypes.func
 };
 
 const StoreProjectOptions = ({onStoreProjectOptions}) => (
@@ -447,6 +440,7 @@ const SettingsModalComponent = props => (
                     id="tw.settingsModal.featured"
                 />
             </Header>
+            {!props.isEmbedded && <CustomStageSize {...props} />}
             <CustomFPS
                 framerate={props.framerate}
                 onChange={props.onFramerateChange}
@@ -490,11 +484,6 @@ const SettingsModalComponent = props => (
                     id="tw.settingsModal.dangerZone"
                 />
             </Header>
-            {!props.isEmbedded && (
-                <CustomStageSize
-                    {...props}
-                />
-            )}
             <DisableCompiler
                 value={props.disableCompiler}
                 onChange={props.onDisableCompilerChange}

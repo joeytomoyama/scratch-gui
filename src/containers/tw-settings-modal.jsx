@@ -5,7 +5,7 @@ import bindAll from 'lodash.bindall';
 import {connect} from 'react-redux';
 import {closeSettingsModal} from '../reducers/modals';
 import SettingsModalComponent from '../components/tw-settings-modal/settings-modal.jsx';
-import {defaultStageSize} from '../reducers/custom-stage-size';
+import {stageResolutions} from '../lib/stage-resolutions';
 
 const messages = defineMessages({
     newFramerate: {
@@ -27,8 +27,7 @@ class UsernameModal extends React.Component {
             'handleRemoveFencingChange',
             'handleRemoveLimitsChange',
             'handleWarpTimerChange',
-            'handleStageWidthChange',
-            'handleStageHeightChange',
+            'handleStageResolutionChange',
             'handleDisableCompilerChange',
             'handleStoreProjectOptions'
         ]);
@@ -76,11 +75,11 @@ class UsernameModal extends React.Component {
             enabled: !e.target.checked
         });
     }
-    handleStageWidthChange (value) {
-        this.props.vm.setStageSize(value, this.props.customStageSize.height);
-    }
-    handleStageHeightChange (value) {
-        this.props.vm.setStageSize(this.props.customStageSize.width, value);
+    handleStageResolutionChange (event) {
+        const id = event.target.value;
+        if (!Object.prototype.hasOwnProperty.call(stageResolutions, id)) return;
+        const {width, height} = stageResolutions[id];
+        this.props.vm.setStageSize(width, height);
     }
     handleStoreProjectOptions () {
         this.props.vm.storeProjectOptions();
@@ -104,15 +103,10 @@ class UsernameModal extends React.Component {
                 onRemoveFencingChange={this.handleRemoveFencingChange}
                 onRemoveLimitsChange={this.handleRemoveLimitsChange}
                 onWarpTimerChange={this.handleWarpTimerChange}
-                onStageWidthChange={this.handleStageWidthChange}
-                onStageHeightChange={this.handleStageHeightChange}
+                onStageResolutionChange={this.handleStageResolutionChange}
                 onDisableCompilerChange={this.handleDisableCompilerChange}
                 stageWidth={this.props.customStageSize.width}
                 stageHeight={this.props.customStageSize.height}
-                customStageSizeEnabled={
-                    this.props.customStageSize.width !== defaultStageSize.width ||
-                    this.props.customStageSize.height !== defaultStageSize.height
-                }
                 onStoreProjectOptions={this.handleStoreProjectOptions}
                 {...props}
             />

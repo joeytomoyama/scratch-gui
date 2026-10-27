@@ -580,3 +580,18 @@ at pickup within the palette, stable origins and successful subsequent drop.
   language, preserve later drafts, and never automatically resend or call a model.
 - Desktop tutor controls, optional blank questions (Enter), JSON inspection,
   transcripts and recording cancellation remain supported.
+
+### 2026-10-23 — Offer two game resolution presets
+
+- Replace Advanced Settings' arbitrary width/height inputs with a labeled native
+  Game resolution selector under Featured: Default (480 × 360, 4:3) and Mobile
+  (360 × 640, 9:16). Apply both dimensions in one existing VM `setStageSize` call.
+  Keep display scaling, fullscreen and viewport-driven layout independent.
+- Share the exact preset dimensions between the selector and initial URL size
+  parsing. Unsupported URL dimensions fall back to Default; reject unknown
+  selector values. No dependency, backend or course-data changes.
+- Preserve native dimensions when loading legacy/imported projects; the Redux VM
+  event adapter still mirrors the renderer exactly. Such projects show a disabled
+  Choose resolution placeholder with only the two presets selectable, and resize
+  only after an explicit selection. Retain Store settings in project's existing
+  persistence workflow. This supersedes the 480 × 980 development-size suggestion.

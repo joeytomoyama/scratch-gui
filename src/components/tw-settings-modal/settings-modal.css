@@ -40,10 +40,35 @@
 }
 
 .label {
-    height: 32px;
+    min-height: 32px;
     display: flex;
     flex-direction: row;
     align-items: center;
+}
+
+.resolution {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.resolution-select {
+    max-width: 100%;
+    min-height: 32px;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 4px;
+    background: $ui-primary;
+    color: $text-primary;
+    font: inherit;
+    cursor: pointer;
+}
+
+.resolution-select:focus-visible {
+    outline: 2px solid $looks-secondary;
+    outline-offset: 2px;
 }
 
 .setting table {
